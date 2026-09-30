@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const posts = await getCollection('posts', ({ data }) => !data.draft);
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+---
+
+<BaseLayout>
+    {/* The index is deliberately just a list, but it still needs one h1 for
+        screen readers and heading structure. Hidden visually, not removed. */}
+    <h1 class="visually-hidden">文章</h1>
+    <ul class="post-list">
+        {posts.map(post => {
+            const d = post.data.date;
+            const fmtDate = `${months[d.getMonth()]} ${String(d.getDate()).padStart(2, '0')}, ${d.getFullYear()}`;
+            return (
+            <li class="post-item">
+                <a href={`/posts/${post.id}/`} class="post-link">
+                    <span class="date-container"><span class="post-date">{fmtDate}</span></span>
+                    <p class="post-title">{post.data.title}</p>
+                    <p class="post-excerpt">{post.body.replace(/<[^>]*>/g, '').slice(0, 120).trim()}</p>
+                </a>
+            </li>
+            );
+        })}
+    </ul>
+</BaseLayout>

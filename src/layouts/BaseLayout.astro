@@ -1,0 +1,132 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
+const { title = "xiaotian’s blog", description = "xiaotian’s blog — xiaotian", canonical, articlePage = false, lang = 'zh-CN', publishedTime, noindex = false } = Astro.props;
+// Bump OG_IMAGE_VERSION whenever og-image.png changes. Telegram caches the
+// image BY URL and re-serving the same URL does not invalidate it, so the
+// version query is the only thing that forces a fresh fetch.
+const OG_IMAGE_VERSION = '3';
+const ogImage = `https://worth.ee/og-image.png?v=${OG_IMAGE_VERSION}`;
+const pageUrl = canonical || `https://worth.ee${Astro.url.pathname}`;
+const isNotHome = Astro.url.pathname !== '/';
+---
+
+<!DOCTYPE html>
+<html lang={lang}>
+<head>
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#ffffff">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href="/fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+    <meta name="description" content={description} />
+    <meta name="author" content="xiaotian" />
+    {/* A 404 is served at /404.html, so the canonical /404/ path does not
+        exist. Pointing at it is a dead link, so drop canonical and noindex. */}
+    {!noindex && <link rel="canonical" href={pageUrl} />}
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:type" content={articlePage ? 'article' : 'website'} />
+    {articlePage && publishedTime && <meta property="article:published_time" content={new Date(publishedTime).toISOString()} />}
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:image" content={ogImage} />
+    {/* Declared so crawlers size the card without downloading the image first.
+        1200x630 is the 1.91:1 that Facebook/LinkedIn/Slack expect. */}
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
+    <meta property="og:site_name" content="xiaotian’s blog" />
+    <meta property="og:locale" content={lang === 'en' ? 'en_US' : 'zh_CN'} />
+    {/* X/Twitter ignores og:* entirely and only reads twitter:card, so
+        without this a shared link renders as a bare URL there. */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <ClientRouter fallback="none" />
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="gradient-mask"></div>
+    <div class="page-wrapper">
+        <main class="container" id="main-content">
+            <slot />
+        </main>
+        <footer class="site-footer">
+            <p class="footer-nav">
+                <a href="/">Index</a><span class="sep">·</span><a href="/about/">About</a><span class="sep">·</span><a href="/privacy/">Privacy</a><span class="sep">·</span><a href="mailto:a@worth.ee">Email</a>
+            </p>
+            <p class="copyright">© 2026 xiaotian</p>
+        </footer>
+    </div>
+
+    <div id="info-tools">
+        {isNotHome && <a href="/" class="info-tool" aria-label="Back to index">←</a>}
+    </div>
+
+    <button class="info-tool back-to-top" aria-label="Back to top">
+        <svg viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg>
+    </button>
+
+    <script is:inline>
+    (function(){
+        var r=false;
+        function bind(){
+            // Reset the throttle flag here, not in onScroll: leaving it latched
+            // means r stays true forever after the first event and every later
+            // scroll is ignored, so the button can never appear.
+            r=false;
+            var y=window.scrollY;
+            var btt=document.querySelector('.back-to-top');
+            var gm=document.querySelector('.gradient-mask');
+            if(btt){
+                // Threshold adapts to the page: a short index may only scroll
+                // ~130px, so a fixed y>300 could never fire. Show the button
+                // once the user is most of the way through whatever scroll
+                // distance exists, but not on pages that barely scroll at all.
+                var maxScroll=document.documentElement.scrollHeight-window.innerHeight;
+                var threshold=Math.min(300, maxScroll*0.5);
+                btt.classList.toggle('is-visible', maxScroll>120 && y>threshold);
+            }
+            if(gm)gm.style.opacity=y>=64?'1':'0';
+        }
+        function onScroll(){if(!r){r=true;requestAnimationFrame(bind)}}
+        window.addEventListener('scroll',onScroll,{passive:true});
+
+        // Re-run on every client-side navigation. This is the fix: without
+        // astro:page-load the observer never re-attaches after a swap and
+        // .post-item stays at opacity:0 -> blank page.
+        function init(){
+            r=false; bind();
+            var btt=document.querySelector('.back-to-top');
+            if(btt && !btt.dataset.bound){
+                btt.dataset.bound='1';
+                btt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})});
+            }
+            var items=document.querySelectorAll('.post-item:not(.visible)');
+            if(!items.length) return;
+            if(!('IntersectionObserver' in window)){
+                items.forEach(function(el){el.classList.add('visible')});
+                return;
+            }
+            var io=new IntersectionObserver(function(entries){
+                entries.forEach(function(e){
+                    if(e.isIntersecting){e.target.classList.add('visible'); io.unobserve(e.target)}
+                });
+            },{threshold:0,rootMargin:'0px 0px -40px 0px'});
+            items.forEach(function(el){io.observe(el)});
+            // safety net: longest stagger (180ms) + transition (550ms) = 730ms.
+            // Fire after that so a stalled observer can never clip the animation.
+            setTimeout(function(){
+                document.querySelectorAll('.post-item:not(.visible)').forEach(function(el){el.classList.add('visible')});
+            },900);
+        }
+        init();
+        document.addEventListener('astro:page-load', init);
+    })();
+    </script>
+</body>
+</html>

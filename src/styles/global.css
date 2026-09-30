@@ -1,0 +1,282 @@
+/* Inter, latin subset, variable (wght 100-900), self-hosted.
+   Self-hosted rather than the Google Fonts CDN: the page only needs Latin
+   (CJK falls through to the system stack), and serving it same-origin drops
+   two third-party origins — no extra DNS/TLS handshake on the critical path,
+   and nothing to block on if fonts.googleapis.com is slow. */
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/inter-latin-var.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+                   U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+                   U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Skip link: visually hidden until focused */
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: 8px;
+    z-index: 1000;
+    padding: 8px 16px;
+    background: var(--grey10);
+    color: var(--white);
+    font-size: 14px;
+    text-decoration: none;
+    border-radius: 0 0 4px 4px;
+}
+.skip-link:focus {
+    top: 0;
+}
+
+/* Off-screen but still in the accessibility tree and the heading outline.
+   The clip-path keeps it out of layout entirely; the 1px box keeps it
+   focusable-scrollable if it ever receives focus. */
+.visually-hidden {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Design tokens — inlined from @new-ui/foundations 0.3.2 (light theme).
+   Only the 7 values this site actually consumes; the CDN stylesheet is not loaded. */
+:root {
+    --white:   oklch(100% 0 0);
+    --grey3:   oklch(82.66% 0 0);
+    --grey4:   oklch(73.16% 0 0);
+    --grey5:   oklch(64.34% 0 0);
+    --grey7:   oklch(43.86% 0 0);
+    --grey10:  oklch(20.02% 0 0);
+
+    --bg:             var(--white);
+    --text-primary:   var(--grey10);
+    --text-secondary: oklch(35% 0 0);
+    --text-tertiary:  var(--grey5);
+    --text-muted:     var(--grey4);
+    --border:         var(--grey3);
+    --hover:          var(--grey10);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+}
+body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    line-height: 1.7;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container { max-width: 680px; width: 100%; margin: 0 auto; flex: 1 0 auto; padding: 6rem 24px 48px; position: relative; }
+
+#info-tools { position: fixed; top: 22px; left: 22px; z-index: 200; display: flex; flex-direction: column; }
+.info-tool {
+    width: 24px; height: 24px; border: none; background: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: color .25s cubic-bezier(.4,0,.2,1); -webkit-tap-highlight-color: transparent;
+    padding: 0; color: var(--text-primary); font: inherit; text-decoration: none;
+}
+.info-tool:hover { color: var(--hover); }
+.info-tool svg { width: 14px; height: 14px; stroke-width: 1.5; fill: none; stroke: currentColor; }
+
+/* The visible box stays 24px and the glyph stays 14px — this only grows the
+   hit area to 44px, the recommended minimum for a touch target. Centred on the
+   same point, so nothing moves visually. A pseudo-element is used rather than
+   sizing .info-tool itself because that box is a flex child of #info-tools:
+   making it 44px would push the column's layout around. */
+.info-tool { position: relative; }
+.info-tool::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 44px; height: 44px;
+    transform: translate(-50%, -50%);
+}
+.info-tool:focus-visible { outline: 2px solid var(--grey7); outline-offset: 2px; border-radius: 2px; }
+.back-to-top {
+    position: fixed; bottom: 24px; right: 24px; z-index: 99;
+    color: var(--text-primary); opacity: 0; visibility: hidden;
+    transition: opacity .25s ease, visibility .25s ease;
+}
+.back-to-top:hover { color: var(--hover); }
+.back-to-top.is-visible { opacity: 1; visibility: visible; }
+
+.post-list { list-style: none; }
+
+/* Entrance. Transition lives here only — .visible must not redeclare it,
+   or the two rules fight over duration and the motion never lines up. */
+.post-item {
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+        opacity .55s cubic-bezier(.22,1,.36,1),
+        transform .55s cubic-bezier(.22,1,.36,1);
+}
+.post-item.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* The first entry is the LCP element. Starting it at opacity 0 means the
+   browser cannot report LCP until the entrance fade finishes — ~1.5s of
+   simulated mobile LCP spent on a decoration nobody above the fold is waiting
+   for. So the first item is simply present at paint; the rest still stagger in.
+   Transition is left alone so the hover fade still matches its siblings. */
+.post-item:first-child { opacity: 1; transform: none; }
+
+/* Stagger — reads as deliberate rather than everything firing at once. */
+.post-item:nth-child(1) { transition-delay: 0ms; }
+.post-item:nth-child(2) { transition-delay: 45ms; }
+.post-item:nth-child(3) { transition-delay: 90ms; }
+.post-item:nth-child(4) { transition-delay: 135ms; }
+.post-item:nth-child(n+5) { transition-delay: 180ms; }
+
+@media (prefers-reduced-motion: reduce) {
+    .post-item { opacity: 1; transform: none; transition: none; }
+    .post-item:nth-child(1) { opacity: 1; transform: none; transition: none; }
+}
+.post-link { display: block; text-decoration: none; color: inherit; }
+/* The only gap between posts used to be .post-excerpt's 8px margin-bottom —
+   just 2px more than the 6px title-to-excerpt gap, so the three entries read as
+   one block. Own the inter-item spacing here instead. */
+.post-item + .post-item { margin-top: 40px; }
+.post-item:hover .post-date { color: var(--hover); }
+.post-item:hover .post-title { color: var(--hover); }
+.date-container { display: block; margin-bottom: 4px; }
+.post-date { font-size: 12px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; letter-spacing: .04em; transition: color .2s ease, opacity .2s ease; }
+.post-title { font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: normal; transition: color .2s ease; line-height: 1.5; margin: 0 0 6px; }
+.post-excerpt { margin: 0 0 8px; font-size: 14px; color: oklch(46% 0 0); letter-spacing: normal; line-height: 1.75; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Hover: siblings recede. Shorter than the entrance — hover should feel
+   instant, the entrance is allowed to breathe. */
+@media (hover: hover) and (pointer: fine) {
+    .post-item {
+        transition:
+            opacity .22s cubic-bezier(.4,0,.2,1),
+            transform .22s cubic-bezier(.4,0,.2,1);
+    }
+    /* The inter-item gap is margin, so it belongs to the <ul> and not to any
+       .post-item. Keying this on .post-list:hover alone therefore faded the
+       whole list whenever the pointer sat in that 40px gutter — no item was
+       hovered, so :not(:hover) matched all of them. :has() states the real
+       condition: siblings recede only while some item actually is hovered. */
+    .post-list:has(.post-item:hover) .post-item:not(:hover) { opacity: .5; }
+    /* The entrance stagger above leaves a 0-180ms delay on every item, and
+       transition shorthand here does not reset transition-delay — so siblings
+       would fade out at different speeds, the far ones feeling sticky. Zero it
+       only while hovering, so the load-in stagger is untouched. */
+    .post-list:has(.post-item:hover) .post-item { transition-delay: 0ms; }
+}
+@media (prefers-reduced-motion: reduce) {
+    /* Identical selector to the rule above, so source order decides: the
+       hover-recede never applies for reduced-motion users. */
+    .post-list:has(.post-item:hover) .post-item:not(:hover) { opacity: 1; }
+}
+
+/* page transition: fade out old page, fade in new page */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: vt-fade-out .22s ease both; }
+::view-transition-new(root) { animation: vt-fade-in .3s ease .05s both; }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}
+
+/* 640px rather than 680px: ~42 chars per line instead of 45, which makes
+   long paragraphs measurably easier to track back to the next line. */
+.post-content { max-width: 640px; margin: 0 auto; padding-top: 32px; }
+.post-content h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: normal; margin: 0 0 1.25rem; line-height: 1.4; }
+.post-content h2 { font-size: 1.1rem; font-weight: 600; letter-spacing: normal; margin: 1.5rem 0 .5rem; line-height: 1.5; }
+/* letter-spacing: 0 — the .015em here is a Latin-only tweak. On CJK glyphs it
+   opens gaps between every character and loosens punctuation. */
+.post-content p { font-size: 1rem; line-height: 1.7; color: var(--text-secondary); margin: 0 0 .875rem; letter-spacing: normal; }
+.post-content a { text-decoration: underline; text-underline-offset: 2px; }
+.back-to-top svg { width: 14px; height: 14px; fill: none; stroke: currentColor; }
+
+.gradient-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6rem;
+    z-index: 99;
+    pointer-events: none;
+    background: linear-gradient(to bottom, var(--bg) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+.gradient-mask.is-visible { opacity: 1; }
+
+.page-wrapper { flex: 1 1 auto; display: flex; flex-direction: column; width: 100%; }
+.site-footer {
+    flex-shrink: 0;
+    text-align: center;
+    padding: 40px 24px 32px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+/* Tap targets: text is 13px, so pad out to a comfortable mobile size without changing the visual */
+.footer-nav a, .site-footer a {
+    display: inline-block;
+    padding: 11px 6px;
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+.footer-nav .sep {
+    color: var(--text-muted);
+    padding: 0 2px;
+    user-select: none;
+}
+.site-footer a:hover { color: var(--hover); }
+.site-footer .copyright {
+    margin-top: 14px;
+    font-size: 12px;
+    letter-spacing: .04em;
+    color: var(--text-secondary);
+}
+
+@media(max-width:640px){
+    /* Side padding 16 -> 24. Measured on a 390px viewport this takes the
+       excerpt from ~25.6 to ~24.4 chars/line (comfortable) and body copy from
+       ~22.4 to ~21.4. CJK wants 25-35, so the body is already at the tight
+       end — don't push this much further or line-return scanning gets tiring. */
+    .container { padding: 5rem 24px 40px; }
+    #info-tools { top: 16px; left: 16px; }
+    .back-to-top { bottom: 24px; right: 16px; }
+    /* Keep the title at 15px here. Shrinking it to 14px left title and excerpt
+       at the same size, and at that point the only hierarchy left is a 15-point
+       lightness gap plus weight — not enough to read as a distinct level. */
+    .post-link { font-size: 14px; }
+    .post-title { font-size: 15px; }
+    /* Body copy 16 -> 15px on phones. At a fixed 342px measure, dropping the
+       size buys back the characters/line that narrowing the gutters cost us:
+       ~21.4 -> ~23, back inside the 25-35 CJK comfort range's lower half,
+       and the page reads denser rather than more cramped. */
+    .post-content p { font-size: 15px; }
+    .post-date { color: var(--text-secondary); }
+    /* No max-width/nowrap here: truncating a CJK title breaks the word, and
+       the list is short enough that wrapping costs nothing. */
+    .site-footer { padding: 32px 16px 24px; }
+}
+
+/* Narrow phones (iPhone SE and similar): 24px side padding drops body copy to
+   ~17 chars/line, well under the 25-35 CJK comfort range. Ease it back. */
+@media(max-width:360px){
+    .container { padding-left: 16px; padding-right: 16px; }
+}
