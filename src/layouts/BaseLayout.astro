@@ -74,6 +74,16 @@ const isNotHome = Astro.url.pathname !== '/';
     <script is:inline>
     (function(){
         var r=false;
+        // Cached per page load, not per frame. scrollHeight is a
+        // forced-layout read: asking for it inside the rAF callback makes the
+        // browser recompute layout, then the classList/style writes below
+        // dirty it again — a read/write thrash on every scroll frame. The
+        // document height cannot change between navigations, so once is enough
+        // and init() re-runs on astro:page-load to refresh it.
+        var maxScroll = 0;
+        function measure(){
+            maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        }
         function bind(){
             // Reset the throttle flag here, not in onScroll: leaving it latched
             // means r stays true forever after the first event and every later
@@ -87,9 +97,7 @@ const isNotHome = Astro.url.pathname !== '/';
                 // ~130px, so a fixed y>300 could never fire. Show the button
                 // once the user is most of the way through whatever scroll
                 // distance exists, but not on pages that barely scroll at all.
-                var maxScroll=document.documentElement.scrollHeight-window.innerHeight;
-                var threshold=Math.min(300, maxScroll*0.5);
-                btt.classList.toggle('is-visible', maxScroll>120 && y>threshold);
+                btt.classList.toggle('is-visible', maxScroll>120 && y>Math.min(300, maxScroll*0.5));
             }
             if(gm)gm.style.opacity=y>=64?'1':'0';
         }
@@ -100,7 +108,7 @@ const isNotHome = Astro.url.pathname !== '/';
         // astro:page-load the observer never re-attaches after a swap and
         // .post-item stays at opacity:0 -> blank page.
         function init(){
-            r=false; bind();
+            r=false; measure(); bind();
             var btt=document.querySelector('.back-to-top');
             if(btt && !btt.dataset.bound){
                 btt.dataset.bound='1';

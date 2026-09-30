@@ -64,17 +64,17 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-}
+/* No scroll-behavior: smooth here. It applies to every scroll on the page,
+   including the browser's own scroll-position restoration after a
+   ClientRouter navigation — which turns an instant restore into a slow drift
+   that reads as jank. The back-to-top button asks for smooth scrolling
+   explicitly where it is actually wanted. */
 body {
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
     line-height: 1.7;
     min-height: 100vh;
     min-height: 100dvh;
