@@ -51,13 +51,14 @@ const isNotHome = Astro.url.pathname !== '/';
 <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <div class="gradient-mask"></div>
+    <div class="mist" aria-hidden="true"></div>
     <div class="page-wrapper">
         <main class="container" id="main-content">
             <slot />
         </main>
         <footer class="site-footer">
             <p class="footer-nav">
-                <a href="/">Index</a><span class="sep">·</span><a href="/about/">About</a><span class="sep">·</span><a href="/privacy/">Privacy</a><span class="sep">·</span><a href="mailto:a@worth.ee">Email</a>
+                <a href="/">Index</a><span class="sep">·</span><a href="/about/">About</a><span class="sep">·</span><a href="/privacy/">Privacy</a><span class="sep">·</span><a href="mailto:a@worth.ee">Mail</a>
             </p>
             <p class="copyright">© 2026 xiaotian</p>
         </footer>
@@ -104,9 +105,8 @@ const isNotHome = Astro.url.pathname !== '/';
         function onScroll(){if(!r){r=true;requestAnimationFrame(bind)}}
         window.addEventListener('scroll',onScroll,{passive:true});
 
-        // Re-run on every client-side navigation. This is the fix: without
-        // astro:page-load the observer never re-attaches after a swap and
-        // .post-item stays at opacity:0 -> blank page.
+        // Re-run on every client-side navigation so maxScroll is re-measured
+        // for the swapped-in document.
         function init(){
             r=false; measure(); bind();
             var btt=document.querySelector('.back-to-top');
@@ -114,23 +114,6 @@ const isNotHome = Astro.url.pathname !== '/';
                 btt.dataset.bound='1';
                 btt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})});
             }
-            var items=document.querySelectorAll('.post-item:not(.visible)');
-            if(!items.length) return;
-            if(!('IntersectionObserver' in window)){
-                items.forEach(function(el){el.classList.add('visible')});
-                return;
-            }
-            var io=new IntersectionObserver(function(entries){
-                entries.forEach(function(e){
-                    if(e.isIntersecting){e.target.classList.add('visible'); io.unobserve(e.target)}
-                });
-            },{threshold:0,rootMargin:'0px 0px -40px 0px'});
-            items.forEach(function(el){io.observe(el)});
-            // safety net: longest stagger (180ms) + transition (550ms) = 730ms.
-            // Fire after that so a stalled observer can never clip the animation.
-            setTimeout(function(){
-                document.querySelectorAll('.post-item:not(.visible)').forEach(function(el){el.classList.add('visible')});
-            },900);
         }
         init();
         document.addEventListener('astro:page-load', init);
