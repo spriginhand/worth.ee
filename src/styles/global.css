@@ -241,7 +241,11 @@ body {
 }
 .site-footer a:hover { color: var(--hover); }
 .site-footer .copyright {
-    margin-top: 14px;
+    /* 20px, not 14px. The nav line is 44px tall because its links carry an
+       11px tap-target padding, so a 14px gap left the nav and the copyright
+       reading as one two-line block. At 20px they separate into what they are:
+       where the site goes, and who wrote it. */
+    margin-top: 20px;
     font-size: 12px;
     letter-spacing: .04em;
     color: var(--text-secondary);

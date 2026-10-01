@@ -1,0 +1,42 @@
+/* The post's reply line.
+ *
+ * A plain mailto at the end of each article, with the post's own title in the
+ * subject. The footer's Mail link is bare — a reader has to think "I should
+ * write to them" and type who they are talking about. This one already knows
+ * which post it is, so the only thing left to do is write the sentence.
+ *
+ * No form, no endpoint, no script: the visitor's own mail client sends the
+ * mail, and it goes nowhere near this site. That is why it can exist on a
+ * static build without anything on the privacy page having to change.
+ *
+ * The prompt is deliberately not "leave a comment". A comment box invites
+ * anyone; a sentence tied to one specific line in this particular piece is a
+ * different, smaller ask, and it is the ask worth making.
+ */
+
+/* No rule above it. The article has no internal dividers — the only line on the
+   page is the one above the footer, and a second one here would break the
+   single gesture the design already makes. Whitespace carries the separation
+   instead: the last paragraph ends, some air, then the link. */
+/* The selector has to outrank `.post-content p` (0,1,1) in global.css, which
+   is what was zeroing the margin-top: a bare `.reply` (0,1,0) loses to it and
+   the link ended up one line-gap from the last paragraph. */
+.post-content .reply {
+    margin-top: 3rem;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-tertiary);
+    max-width: 640px;
+}
+.reply p { margin: 0 0 .5rem; font-size: inherit; line-height: inherit; color: inherit; letter-spacing: normal; }
+.reply a {
+    color: var(--text-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+}
+.reply a:hover { color: var(--hover); }
+
+@media (max-width: 640px) {
+    .post-content .reply { font-size: 12.5px; }
+}

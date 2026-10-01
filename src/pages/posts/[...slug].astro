@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/reply.css';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts', ({ data }) => !data.draft);
@@ -14,11 +15,32 @@ const { post } = Astro.props;
 const { title, description, date } = post.data;
 const { Content } = await render(post);
 const canonical = new URL(`/posts/${post.id}/`, Astro.site).href;
+
+// The reply line. It goes to mail, not to Telegram, because mail carries the
+// post's title in the subject: the message that lands in the inbox already says
+// which piece it is about. Telegram has no equivalent — t.me/<user> cannot
+// pre-fill anything — and the About page already carries both addresses, so
+// there is no reason for this line to be anything but the one that arrives
+// with context attached. Percent-encoded because the title is CJK; a raw href
+// truncates at the first character in several clients.
+const mailSubject = encodeURIComponent(`读后：${title}`);
+const mailHref = `mailto:a@worth.ee?subject=${mailSubject}`;
+
+// Per-post prompt from the frontmatter when there is one. Left to itself the
+// line is just the link: an action, not an invitation. Anything more than that
+// was tried and read as pleading — "读到这里，如果有一句停住了" is a claim about
+// the reader's inner state that the page has no standing to make.
+const prompt = post.data.reply;
 ---
 
 <BaseLayout title={title} description={description} canonical={canonical} articlePage={true} publishedTime={date}>
     <article class="post-content">
         <h1>{title}</h1>
         <Content />
+        <p class="reply">
+            {prompt
+                ? <>{prompt} <a href={mailHref}>写信给我</a>。</>
+                : <a href={mailHref}>写信给我</a>}
+        </p>
     </article>
 </BaseLayout>

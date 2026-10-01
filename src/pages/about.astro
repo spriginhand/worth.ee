@@ -6,5 +6,100 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <article class="post-content">
         <h1>About</h1>
         <p>I am xiaotian. This is my blog. The content of this site is written by myself, not through AI.</p>
+        {/* Both addresses live here rather than in the footer. The footer is an
+            index of the site; who to write to is a fact about the author, and it
+            belongs with the rest of that. It also keeps each channel to one
+            place — the end of every post already carries its own reply line,
+            pre-filled with that post's title.
+
+            "contact:" is a real <h2>, not a styled paragraph. It is a heading
+            on this page in exactly the way "Fonts" and "Hosting" are headings on
+            /privacy, and the two should not be two different kinds of thing —
+            this used to be a <p> carrying its own colour and spacing, which is
+            why it never quite matched the section headings elsewhere. Now it
+            inherits .post-content h2 and there is no local rule for it at all. */}
+        <h2>contact:</h2>
+        {/* The whole row is the link, not just the address. This is the answer to
+            "how does a reader know it is clickable" without putting an underline
+            back: the signal is the row lighting up, which is a different channel
+            from colour weight or a rule under the text. It also enlarges the
+            target — the address alone was a short, thin line to hit on a phone.
+
+            The name and the address are both inside the <a>, which is why the
+            grid can no longer live on the wrapper with display:contents rows:
+            an <a> is a single box now. Instead each row is its own grid with a
+            shared column width, set once in --channel-col from the wider label. */}
+        <a class="channel" href="mailto:a@worth.ee">
+            <span class="channel-name">mail:</span>
+            {/* The email's own @ is set small for the same reason as Telegram's:
+                at full size it is a 15px circle beside a 9px lowercase a, so the
+                two addresses began with visibly different shapes and the column
+                read as ragged even though both started at the same x. Scaling it
+                down here makes the two @s match — one deliberate small mark each,
+                rather than one oversized circle and one normal letter. */}
+            <span class="channel-address">a<span class="at">@</span>worth.ee</span>
+        </a>
+        <a class="channel" href="https://t.me/spriginhand" rel="me noopener" target="_blank">
+            <span class="channel-name">telegram:</span>
+            {/* The @ stays — it is how a Telegram handle is written, and
+                stripping it was wrong. What made the column look misaligned
+                beside "a@worth.ee" was its size, not its presence: at 16px the
+                @ is 15px wide and rounds out to nearly double the width of a
+                lowercase a, so the address read as starting further right than
+                it did. Set one step down and aligned to the baseline it stops
+                competing with the row and both addresses start together. */}
+            <span class="channel-address"><span class="at">@</span>spriginhand</span>
+        </a>
     </article>
 </BaseLayout>
+
+<style>
+    /* Each row names a channel and gives the address that reaches it. The whole
+       row is the link. Both columns are the prose colour — no underline, no
+       heavier address — because the hover wash is what marks the row as live,
+       and a text-level signal on top of it would be two signals for one fact.
+
+       The name column is a fixed width rather than max-content so both rows
+       align without a shared wrapper grid: --channel-col is sized to
+       "telegram:" plus a little. */
+    .channel {
+        /* A fixed column so the two rows line up without a wrapper grid. 6.2em
+           fits "telegram:" at 16px plus the gap; it is deliberately not
+           max-content, which would size per row and knock the addresses out of
+           alignment by the difference in label width. */
+        display: grid;
+        grid-template-columns: 6.2em auto;
+        column-gap: .6em;
+        align-items: baseline;
+        width: fit-content;
+        /* Negative margin plus padding: the wash should reach a little past the
+           text so it reads as a row, but the row must still start flush with
+           the column edge above it. */
+        margin: 0 0 0 -8px;
+        padding: 2px 8px;
+        border-radius: 3px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: background-color .15s ease, color .15s ease;
+    }
+    .channel:hover {
+        background-color: oklch(96% 0 0);
+        color: var(--text-primary);
+    }
+    /* A visible ring for keyboard focus, since the row itself carries the hit
+       area and the default outline on an inline-ish box is easy to miss. */
+    .channel:focus-visible {
+        outline: 2px solid var(--grey7);
+        outline-offset: 1px;
+    }
+    /* The @ is kept and made small. At full size it is a circle 15px across
+       next to a 9px lowercase a, so the two addresses started with visibly
+       different shapes and the column read as ragged. One step down it keeps
+       its meaning (this is how a handle is written) without dominating the row;
+       no extra letter-spacing between it and the name, so the handle still
+       reads as one token. */
+    .at {
+        font-size: .8em;
+        margin-right: .06em;
+    }
+</style>
