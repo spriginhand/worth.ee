@@ -39,6 +39,57 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <p>
             I am xiaotian, and this is my personal blog. Glad you could be here.
         </p>
+
+        {/* The authorship guarantee, directly under the introduction and before
+            the addresses. It was at the foot of the page first, on the reasoning
+            that a colophon goes last, which is where it first went; the order is the
+            other way round because the page has three kinds of thing on it and they
+            were in the wrong sequence:
+
+              who he is  →  what he wrote  →  how to reach him
+
+            Contact is the last thing a reader needs. Putting the addresses in the
+            middle meant the writing claim arrived after them, and the two
+            practical blocks sat between the introduction and the one statement
+            on this page that is about the work rather than about logistics.
+            Telegram in particular reads as a destination — it interrupts.
+
+            It also already appears twice elsewhere: every post ends with a
+            write-to-me line carrying that post's title, and the address here is
+            the plain fallback. Neither needs to be prominent on this page, so
+            it goes last.
+
+            No label on this paragraph. It had "writing:" above it, matching
+            "contact:" below, and that was one label too many: a label is worth
+            having when the content under it does not already announce itself,
+            and this paragraph opens "Every word here was written by me." —
+            "writing:" was restating the sentence underneath it. The addresses
+            are the opposite case, three tokens that mean nothing without a
+            label, which is where the one label on this page now sits.
+
+            The two paragraphs above the addresses are both addressed to the
+            reader, so they run together without a break; the label marks the
+            start of the part that is for use rather than for reading. That is
+            the division the page actually has, and one label is enough to make
+            it.
+
+            "Nothing on this site was generated, drafted, or edited by an AI
+            system" — and nothing after it. The clause "including these sentences"
+            that used to close it is gone, and it was the load-bearing part: it
+            extended the claim from the writing to this page's own English, which
+            is text an AI drafted from Chinese the author dictated. That made the
+            sentence false in the strict reading, which is the only reading a
+            claim like this survives or fails on. "Translated" went with it for
+            the same reason — turning the dictation into English is the clearest
+            case of the thing the sentence says did not happen.
+
+            What remains is exactly what is true: three essays in Chinese, written
+            by the author, not machine-generated. The English chrome around them
+            is not covered by the claim, and does not need to be. */}
+        <p class="claim">
+            Every word here was written by me. Nothing on this site was
+            generated, drafted, or edited by an AI system.
+        </p>
         {/* "contact:" was an <h2>. It was promoted to a real heading so it would
             match "Fonts" and "Hosting" on /privacy, and that was the wrong
             comparison: on /privacy those are sections, because Privacy has three
@@ -101,10 +152,29 @@ import BaseLayout from '../layouts/BaseLayout.astro';
        below it, so the three read as one column of labels rather than as a
        heading with content under it. The spacing is kept from the h2 it
        replaces — 24px of air above, 8px below — because that rhythm was right
-       even when the type was not. */
+       even when the type was not.
+
+       --block is gone. It set 48px on the first label to break the page after
+       the introduction, on the theory that "sentences to the reader" and "facts
+       about the site" are two kinds of thing and the spacing should say so. It
+       was the only gap on the site above 24px — /privacy runs 20 / 24 / 8 / 24 /
+       8 and never opens up — so the one page with two kinds of content on it
+       became the page with the different rhythm, which is a worse thing to be
+       than the one with the flatter structure. Two flat pages beat one of each. */
     .contact-label {
         margin: 1.5rem 0 .5rem;
     }
+    /* The introduction is two paragraphs that set as one block. Their margins
+       are both zeroed, which leaves the gap between them at 12px of blank — the
+       same as the gap between two lines inside either of them.
+
+       Measured off the screenshot, not the DOM. A 27.2px line box holds about
+       15px of glyph and the rest is leading, so every box gap gets 12px of
+       blank added to it: 0 → 12px, 14px → 26px, 27.2px → 39px. That is why
+       getBoundingClientRect kept reporting a tidy 27px while the page plainly
+       had a second blank line in it. The two numbers to compare are always the
+       blank-pixel counts, never the box gaps. */
+    .post-content > p { margin-bottom: 0; }
     /* Each row names a channel and gives the address that reaches it. The label
        is not the link — it is the thing you read to know which address the link
        is. So the row is a plain grid wrapper and only the address is an <a>,
