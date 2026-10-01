@@ -5,44 +5,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 <BaseLayout title="About" lang="en">
     <article class="post-content">
         <h1>About</h1>
-        {/* Two sentences, one per line. The first is the self-description; the
-            second is about how he writes rather than what he writes, and that is
-            the choice this page kept making and then undoing: "ordinary life and
-            the thoughts that come with it" said subject, "being alive" said
-            nothing at all because it has no edge, and this says the thing the
-            other two were circling.
+        {/* Two paragraphs. The first names him and greets the reader; the second says
+            what this place is and admits he cannot say what he writes about.
 
-            "I write what I want to write. But what that is, I don't know." — the
-            But is the whole sentence. The first clause is the desire; the second
-            is the author admitting he cannot name it, which is a different claim
-            from having nothing to say. "I don't always know" was the gentler
-            version and this is not it: the blog has three posts and no schedule,
-            and the plain "I don't know" is what that actually looks like from
-            the outside. It also explains the archive without apologising for it.
-
-            "But what that is, I don't know" fronts the wh-clause ahead of the
-            subject. This is not ungrammatical — it is topic-fronting, the same
-            construction as "This I remember" or "That, he never said" — and it
-            is ordinary in literary English, which is the register this sentence
-            is written in. What it does is set "what that is" up as the thing
-            being answered, so "I don't know" lands as the verdict rather than as
-            part of the same breath. The standard order ("But I don't know what
-            that is") was tried and reads flatter: the pause the author wanted
-            moves from the comma to the sentence break. Kept deliberately.
-
-            "Glad you could be here." sits at the end of the FIRST line, not on a
-            line of its own last. That placement is the difference between
-            greeting and signing off: on its own final line it became a closing
-            statement, and this page is not making one — it is introducing itself
-            and then immediately qualifying that. Attached to the introduction it
-            reads as part of the same breath: who I am, this is mine, and glad
-            you are here. Three sentences per line would have been three separate things.
-
-            "could be here" rather than "came": the conditional concedes the
-            distance — nobody was ever going to find this place, and the reader
-            did anyway. "Came" states the fact flatly and sounds like a host at a
-            door; "could be here" sounds like someone who did not expect company.
-            Same warmth, but it admits something instead of asserting.
+            A blue pen from his father, used to score well on an exam, now in a
+            box, and genuinely liked — that was here for a while, and it was
+            the only sentence on this page that no one else could have written.
+            It was cut because it did not earn its place: it said who he was
+            before the page had any reason to care, and it made the admission
+            in the last line read as an excuse rather than as a fact. It was
+            better as the opening of an essay than as a line of self-description.
+            If it comes back it belongs in a post, not here.
 
             The authorship guarantee moved to /privacy under a Writing heading,
             where it sits beside the other claims about this site that can be
@@ -58,37 +31,42 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             are the only facts left that are true, new, and not derivable from
             the archive.
 
-            One <p> with a break rather than two <p>s, so the lines keep the
-            site's 1.7 leading (27.2px) instead of taking the paragraph margin
-            too, which put them 41px apart — double the rhythm of /privacy. */}
+            One <p> with a break rather than two <p>s: two paragraphs put the
+            .875rem bottom margin between them on top of the 1.7 leading, so
+            the gap measured 41px — more than double the rhythm of /privacy, and
+            it read as two separate blocks on a page that has almost nothing on
+            it. The break keeps 27.2px, the site's own line spacing. */}
         <p>
-            I am xiaotian, and this is my personal blog. Glad you could be here.<br />
-            I write what I want to write. But what that is, I don't know.
+            I am xiaotian, and this is my personal blog. Glad you could be here.
         </p>
-        {/* Both addresses live here rather than in the footer. The footer is an
-            index of the site; who to write to is a fact about the author, and it
-            belongs with the rest of that. It also keeps each channel to one
-            place — the end of every post already carries its own reply line,
-            pre-filled with that post's title.
+        {/* "contact:" was an <h2>. It was promoted to a real heading so it would
+            match "Fonts" and "Hosting" on /privacy, and that was the wrong
+            comparison: on /privacy those are sections, because Privacy has three
+            of them and each carries a paragraph. About has one section — the
+            introduction above — and this is not a second one. It is a label on a
+            block of addresses, the same kind of thing as the copyright line in
+            the footer, and the h2 said otherwise: a 17.6px 600-weight heading
+            over two lines of 16px body, on a page whose only other bold text is
+            the h1.
 
-            "contact:" is a real <h2>, not a styled paragraph. It is a heading
-            on this page in exactly the way "Fonts" and "Hosting" are headings on
-            /privacy, and the two should not be two different kinds of thing —
-            this used to be a <p> carrying its own colour and spacing, which is
-            why it never quite matched the section headings elsewhere. Now it
-            inherits .post-content h2 and there is no local rule for it at all. */}
-        <h2>contact:</h2>
-        {/* The whole row is the link, not just the address. This is the answer to
-            "how does a reader know it is clickable" without putting an underline
-            back: the signal is the row lighting up, which is a different channel
-            from colour weight or a rule under the text. It also enlarges the
-            target — the address alone was a short, thin line to hit on a phone.
+            It is a <p> now, at the same weight as the addresses below it and in
+            the tertiary grey, so the three labels read as one column of labels
+            — contact:, mail:, telegram: — rather than as a heading followed by
+            content. The colon was the tell that it was never a heading. */}
+        <p class="contact-label">contact:</p>
+        {/* Only the ADDRESS is the link. The label sits outside the <a> and is
+            not part of the hit area: "mail:" and "telegram:" tell you which
+            address the link is, they are not something you aim at. An earlier
+            version wrapped the whole row and relied on the wash appearing only
+            under the address — which meant the cursor and the tab stop covered
+            text that was not the target, and the label looked live without
+            being the thing you meant to click.
 
-            The name and the address are both inside the <a>, which is why the
-            grid can no longer live on the wrapper with display:contents rows:
-            an <a> is a single box now. Instead each row is its own grid with a
-            shared column width, set once in --channel-col from the wider label. */}
-        <a class="channel" href="mailto:a@worth.ee">
+            Now the row is a grid wrapper and the address is its own <a>, which
+            is also why the label no longer needs the row to be clickable to
+            feel findable: the address carries its own hover and its own focus
+            ring, and those are the only two signals there are. */}
+        <div class="channel">
             <span class="channel-name">mail:</span>
             {/* The @ is set small. At full size it is a 15px circle beside a 9px
                 lowercase a, and it sits at the visual centre of the row while the
@@ -100,9 +78,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 address into "where to go" and "who it is for" was tried and is
                 not worth it: both halves have to be read to use the address, and
                 the block reads as one label with a value. */}
-            <span class="channel-address">a<span class="at">@</span>worth.ee</span>
-        </a>
-        <a class="channel" href="https://t.me/spriginhand" rel="me noopener" target="_blank">
+            <a class="channel-address" href="mailto:a@worth.ee">a<span class="at">@</span>worth.ee</a>
+        </div>
+        <div class="channel">
             <span class="channel-name">telegram:</span>
             {/* Shown as t.me/spriginhand rather than @spriginhand. The @ was
                 tried both ways: stripped entirely, and kept at full size, and
@@ -112,26 +90,36 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 t as most handles do, is what the reader would type to reach the
                 page, and needs no size override to sit level with the letters
                 after it. The mail row's @ stays small for the same reason. */}
-            <span class="channel-address">t.me/spriginhand</span>
-        </a>
+            <a class="channel-address" href="https://t.me/spriginhand" rel="me noopener" target="_blank">t.me/spriginhand</a>
+        </div>
     </article>
 </BaseLayout>
 
 <style>
-    /* Each row names a channel and gives the address that reaches it. The whole
-       row is the link, so the hit area is a line rather than a few characters.
+    /* The block label, one step above the two rows it names. It carries the same
+       16px regular weight and the same prose colour as "mail:" and "telegram:"
+       below it, so the three read as one column of labels rather than as a
+       heading with content under it. The spacing is kept from the h2 it
+       replaces — 24px of air above, 8px below — because that rhythm was right
+       even when the type was not. */
+    .contact-label {
+        margin: 1.5rem 0 .5rem;
+    }
+    /* Each row names a channel and gives the address that reaches it. The label
+       is not the link — it is the thing you read to know which address the link
+       is. So the row is a plain grid wrapper and only the address is an <a>,
+       which means the cursor and the tab stop cover exactly the words that do
+       something.
 
-       Hover lights the ADDRESS, not the row. Washing the row would make
-       "mail:" look like part of the hit area, and the label is not the thing
-       you are aiming at — you read it to know which address the link is. The
-       label holds its prose colour throughout and only the value responds,
-       which is also what tells you where the click target starts and ends
-       without a rule under the text. */
+       The label holds its prose colour throughout. Only the value responds,
+       and that response is the whole affordance: no underline, no icon, no
+       colour difference between label and value. The wash and the focus ring
+       are the two signals, and they land in the same place. */
     .channel {
-        /* A fixed column so the two rows line up without a wrapper grid. 6.2em
-           fits "telegram:" at 16px plus the gap; it is deliberately not
-           max-content, which would size per row and knock the addresses out of
-           alignment by the difference in label width. */
+        /* A fixed column so the two rows line up. 6.2em fits "telegram:" at
+           16px plus the gap; it is deliberately not max-content, which would
+           size per row and knock the addresses out of alignment by the
+           difference in label width. */
         display: grid;
         grid-template-columns: 6.2em auto;
         column-gap: .6em;
@@ -140,27 +128,28 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         margin: 0;
         padding: 0;
         color: var(--text-secondary);
-        text-decoration: none;
     }
-    /* The wash is on the address span, so the padding that gives the wash room
-       to breathe lives there too — and a negative margin pulls its left edge
-       back under the column-gap, so the block starts flush with the text above
-       rather than sitting a half-gem in. */
+    /* The link. The wash needs room to breathe, so the padding lives here — and
+       a negative margin pulls its left edge back under the column-gap, so the
+       block starts flush with the text above rather than sitting a half-gem in.
+       No underline: the wash is the signal, and an underline under it as well
+       would be two answers to one question. */
     .channel-address {
         margin: 0 -8px;
         padding: 2px 8px;
         border-radius: 3px;
+        color: inherit;
+        text-decoration: none;
         transition: background-color .15s ease, color .15s ease;
     }
     .channel-address:hover {
         background-color: oklch(96% 0 0);
         color: var(--text-primary);
     }
-    /* A visible ring for keyboard focus. The address carries the visual hit
-       area, so the ring goes on it rather than the row, matching what a mouse
-       user sees light up. */
-    .channel:focus-visible { outline: none; }
-    .channel:focus-visible .channel-address {
+    /* A visible ring for keyboard focus, on the link itself. The address is
+       now the only focusable thing in the row, so the ring goes there rather
+       than on the wrapper — matching what a mouse user sees light up. */
+    .channel-address:focus-visible {
         outline: 2px solid var(--grey7);
         outline-offset: 1px;
     }
