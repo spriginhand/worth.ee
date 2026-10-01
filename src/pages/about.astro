@@ -31,37 +31,43 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             shared column width, set once in --channel-col from the wider label. */}
         <a class="channel" href="mailto:a@worth.ee">
             <span class="channel-name">mail:</span>
-            {/* The email's own @ is set small for the same reason as Telegram's:
-                at full size it is a 15px circle beside a 9px lowercase a, so the
-                two addresses began with visibly different shapes and the column
-                read as ragged even though both started at the same x. Scaling it
-                down here makes the two @s match — one deliberate small mark each,
-                rather than one oversized circle and one normal letter. */}
+            {/* The @ is set small. At full size it is a 15px circle beside a 9px
+                lowercase a, and it sits at the visual centre of the row while the
+                letters around it sit on the baseline — so the address read as
+                starting further right than it did, even though both rows began at
+                the same x. One step down it stops competing with the row.
+
+                The domain is not dimmed, and neither is t.me/ below. Splitting an
+                address into "where to go" and "who it is for" was tried and is
+                not worth it: both halves have to be read to use the address, and
+                the block reads as one label with a value. */}
             <span class="channel-address">a<span class="at">@</span>worth.ee</span>
         </a>
         <a class="channel" href="https://t.me/spriginhand" rel="me noopener" target="_blank">
             <span class="channel-name">telegram:</span>
-            {/* The @ stays — it is how a Telegram handle is written, and
-                stripping it was wrong. What made the column look misaligned
-                beside "a@worth.ee" was its size, not its presence: at 16px the
-                @ is 15px wide and rounds out to nearly double the width of a
-                lowercase a, so the address read as starting further right than
-                it did. Set one step down and aligned to the baseline it stops
-                competing with the row and both addresses start together. */}
-            <span class="channel-address"><span class="at">@</span>spriginhand</span>
+            {/* Shown as t.me/spriginhand rather than @spriginhand. The @ was
+                tried both ways: stripped entirely, and kept at full size, and
+                both read wrong — the leading circle is wider than anything else
+                that can start an address here, which knocked the visual start
+                out of line with the mail row. t.me/ is lowercase, begins with a
+                t as most handles do, is what the reader would type to reach the
+                page, and needs no size override to sit level with the letters
+                after it. The mail row's @ stays small for the same reason. */}
+            <span class="channel-address">t.me/spriginhand</span>
         </a>
     </article>
 </BaseLayout>
 
 <style>
     /* Each row names a channel and gives the address that reaches it. The whole
-       row is the link. Both columns are the prose colour — no underline, no
-       heavier address — because the hover wash is what marks the row as live,
-       and a text-level signal on top of it would be two signals for one fact.
+       row is the link, so the hit area is a line rather than a few characters.
 
-       The name column is a fixed width rather than max-content so both rows
-       align without a shared wrapper grid: --channel-col is sized to
-       "telegram:" plus a little. */
+       Hover lights the ADDRESS, not the row. Washing the row would make
+       "mail:" look like part of the hit area, and the label is not the thing
+       you are aiming at — you read it to know which address the link is. The
+       label holds its prose colour throughout and only the value responds,
+       which is also what tells you where the click target starts and ends
+       without a rule under the text. */
     .channel {
         /* A fixed column so the two rows line up without a wrapper grid. 6.2em
            fits "telegram:" at 16px plus the gap; it is deliberately not
@@ -72,34 +78,50 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         column-gap: .6em;
         align-items: baseline;
         width: fit-content;
-        /* Negative margin plus padding: the wash should reach a little past the
-           text so it reads as a row, but the row must still start flush with
-           the column edge above it. */
-        margin: 0 0 0 -8px;
-        padding: 2px 8px;
-        border-radius: 3px;
+        margin: 0;
+        padding: 0;
         color: var(--text-secondary);
         text-decoration: none;
+    }
+    /* The wash is on the address span, so the padding that gives the wash room
+       to breathe lives there too — and a negative margin pulls its left edge
+       back under the column-gap, so the block starts flush with the text above
+       rather than sitting a half-gem in. */
+    .channel-address {
+        margin: 0 -8px;
+        padding: 2px 8px;
+        border-radius: 3px;
         transition: background-color .15s ease, color .15s ease;
     }
-    .channel:hover {
+    .channel-address:hover {
         background-color: oklch(96% 0 0);
         color: var(--text-primary);
     }
-    /* A visible ring for keyboard focus, since the row itself carries the hit
-       area and the default outline on an inline-ish box is easy to miss. */
-    .channel:focus-visible {
+    /* A visible ring for keyboard focus. The address carries the visual hit
+       area, so the ring goes on it rather than the row, matching what a mouse
+       user sees light up. */
+    .channel:focus-visible { outline: none; }
+    .channel:focus-visible .channel-address {
         outline: 2px solid var(--grey7);
         outline-offset: 1px;
     }
-    /* The @ is kept and made small. At full size it is a circle 15px across
-       next to a 9px lowercase a, so the two addresses started with visibly
-       different shapes and the column read as ragged. One step down it keeps
-       its meaning (this is how a handle is written) without dominating the row;
-       no extra letter-spacing between it and the name, so the handle still
-       reads as one token. */
+    /* The mail address's @ is set one step down. At full size it is a circle
+       15px across beside a 9px lowercase a and it sits centred on the row while
+       the letters sit on the baseline, so it pulled the eye right and the two
+       addresses looked like they began at different x. Small, it stays part of
+       the word; the tiny right margin keeps "worth.ee" from crowding it. */
     .at {
         font-size: .8em;
         margin-right: .06em;
     }
+    /* The domain is held back a step from the name it points at. Both rows are
+       addresses, and both carry two parts: somewhere to send it, and who it is
+       for — t.me/ and worth.ee. Dimming the first part in each row lets the eye
+       land on the identifier, and it ties back to the footer's separator, which
+       is the same muted grey. Same grey on both rows, so the two keep matching. */
+    .tme,
+    .domain { color: var(--text-tertiary); }
+    /* Sits directly against the name it precedes, so it gets no extra gap — the
+       dimming already separates it, and a margin would open a hole. */
+    .tme, .domain { margin-right: .06em; }
 </style>
