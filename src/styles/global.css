@@ -45,10 +45,11 @@
 }
 
 /* Design tokens — inlined from @new-ui/foundations 0.3.2 (light theme).
-   Only the 7 values this site actually consumes; the CDN stylesheet is not loaded. */
+   Only the values this site actually consumes; the CDN stylesheet is not
+   loaded. grey3 was dropped along with --border, which was its only consumer,
+   so the scale now starts at grey4. */
 :root {
     --white:   oklch(100% 0 0);
-    --grey3:   oklch(82.66% 0 0);
     --grey4:   oklch(73.16% 0 0);
     --grey5:   oklch(64.34% 0 0);
     --grey7:   oklch(43.86% 0 0);
@@ -59,7 +60,6 @@
     --text-secondary: oklch(35% 0 0);
     --text-tertiary:  var(--grey5);
     --text-muted:     var(--grey4);
-    --border:         var(--grey3);
     --hover:          var(--grey10);
 }
 
@@ -120,7 +120,7 @@ body {
 
 /* Year groups. The year is the slowest-varying fact in the list, so it is
    printed once per group in its own column instead of on every row — which is
-   also what lets the row date shrink to "Sep 29". `.year-label` is an h2 so the
+   also what lets the row date shrink to "09/29". `.year-label` is an h2 so the
    document outline still reads year > post.
 
    The year column is hung in the left margin rather than inside the measure:
@@ -190,9 +190,8 @@ body {
    title's column or the date's. */
 .post-excerpt { grid-column: 1 / -1; margin: 0 0 8px; font-size: 14px; color: oklch(46% 0 0); letter-spacing: normal; line-height: 1.75; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-/* Hover: siblings recede. Shorter than the entrance — hover should feel
-   instant, the entrance is allowed to breathe. The inter-item gap is margin,
-   so it belongs to the <ul> and not to any .post-item. Keying this on
+/* Hover: siblings recede. The inter-item gap is margin, so it belongs to the
+   <ul> and not to any .post-item. Keying this on
    .post-list:hover alone therefore faded the whole list whenever the pointer
    sat in that 40px gutter — no item was hovered, so :not(:hover) matched all
    of them. :has() states the real condition: siblings recede only while some
@@ -207,25 +206,23 @@ body {
     .post-list:has(.post-item:hover) .post-item:not(:hover) { opacity: 1; }
 }
 
-/* Page transition: none. The old page was cross-faded out and the new one
-   faded in over .52s combined, which is longer than the swap itself takes
-   (measured: astro:after-swap lands ~15ms after a click) — so most of what
-   you saw was the cross-fade, not the page arriving.
+/* Page transition: cancelled, not configured.
 
-   Deleting the author animations is not enough on its own: Astro's
-   ClientRouter calls document.startViewTransition() on every navigation, so
-   with no CSS of ours naming an animation the browser falls back to its own
-   default cross-fade (measured running ~300ms after the author rules were
-   removed). `animation: none` on the group and both snapshots is what
-   actually cancels it. The group is included deliberately — it carries the
-   size/position morph, which between two full-viewport snapshots has nothing
-   to interpolate, so cancelling it costs no visible alignment.
+   Astro's ClientRouter calls document.startViewTransition() on every
+   navigation, so the browser runs its default cross-fade whether or not any CSS
+   of ours asks for it — naming no animation is not the same as having none.
+   Cancelling the group and both snapshots is what makes a click swap the page
+   outright. The group is included deliberately: it carries the size/position
+   morph, which between two full-viewport snapshots has nothing to interpolate,
+   so cancelling it costs no visible alignment. Measured on the index: zero
+   animations running at any point during a navigation.
 
-   `@view-transition { navigation: auto }` stays: without JS the router is gone
-   and a page change is a real cross-document navigation, where the browser
-   would otherwise apply its default cross-fade anyway — so this rule is what
-   makes the no-JS path match the JS one. */
-@view-transition { navigation: auto; }
+   `@view-transition { navigation: auto }` is deliberately NOT set. That rule
+   opts same-origin cross-document navigations into the transition API, and with
+   JS unavailable the router is gone and a page change is a real cross-document
+   navigation — so the rule would hand the no-JS path a cross-fade the JS path
+   does not have. Leaving it unset makes that path a hard cut, which is the
+   browser's own default and matches what the JS path now does. */
 ::view-transition-group(root),
 ::view-transition-old(root),
 ::view-transition-new(root) { animation: none; }
@@ -260,7 +257,8 @@ body {
     opacity: 0;
     transition: opacity .3s ease;
 }
-.gradient-mask.is-visible { opacity: 1; }
+/* No `.is-visible` rule here, unlike .back-to-top: the scroll handler sets
+   inline `style.opacity` on this element, so the class is never added to it. */
 
 .page-wrapper { flex: 1 1 auto; display: flex; flex-direction: column; width: 100%; }
 .site-footer {
