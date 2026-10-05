@@ -1,0 +1,28 @@
+# Cloudflare Pages caching. Without this file Pages serves Astro's defaults:
+# every font and chunk revalidates on each visit (max-age=14400,
+# must-revalidate) and the HTML is never edge-cached at all (cf-cache-status:
+# DYNAMIC), so a cold visitor pays a full round trip to the origin for the
+# font before any text paints.
+#
+# Fingerprinted paths are safe to cache forever: Astro emits a content hash
+# into the filename, so a changed file is a changed URL. The font is not
+# fingerprinted, so it gets a year rather than forever — a new Inter cut would
+# otherwise be unreachable for every cached client until the entry expired.
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/favicon.svg
+  Cache-Control: public, max-age=604800
+
+/og-image.png
+  Cache-Control: public, max-age=604800
+
+/*
+  # Browsers revalidate (max-age=0) so a deploy is picked up on the next
+  # navigation; the edge holds it for ten minutes, which is what turns a
+  # repeat visit into a HIT instead of an origin fetch.
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate

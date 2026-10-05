@@ -51,7 +51,6 @@ const isNotHome = Astro.url.pathname !== '/';
 <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <div class="gradient-mask"></div>
-    <div class="mist" aria-hidden="true"></div>
     <div class="page-wrapper">
         <main class="container" id="main-content">
             <slot />
@@ -112,25 +111,10 @@ const isNotHome = Astro.url.pathname !== '/';
         function onScroll(){if(!r){r=true;requestAnimationFrame(bind)}}
         window.addEventListener('scroll',onScroll,{passive:true});
 
-        // The mist ends at opacity:0, but a fixed full-viewport element with a
-        // backdrop-filter keeps a compositing layer alive for the rest of the
-        // session and rides along on every scroll. Take it out of the DOM once
-        // it has done its job. Guarded by dataset so init() running twice for
-        // the same element (initial load, then astro:page-load) cannot stack
-        // listeners; under prefers-reduced-motion the element is display:none
-        // and never fires animationend, which is fine — there is nothing to free.
-        function dropMist(){
-            var m=document.querySelector('.mist');
-            if(!m || m.dataset.done) return;
-            m.dataset.done='1';
-            m.addEventListener('animationend',function(){ m.remove(); });
-        }
-
         // Re-run on every client-side navigation so maxScroll is re-measured
-        // for the swapped-in document. Each swap brings in a fresh .mist, so
-        // dropMist() has a new element to bind to every time.
+        // for the swapped-in document.
         function init(){
-            r=false; measure(); bind(); dropMist();
+            r=false; measure(); bind();
             var btt=document.querySelector('.back-to-top');
             if(btt && !btt.dataset.bound){
                 btt.dataset.bound='1';

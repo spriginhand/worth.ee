@@ -163,43 +163,6 @@ body {
     .year-label { margin: 2px 0 0; }
 }
 
-/* Entrance: the page is briefly veiled in mist, and the mist dissipates.
-   The veil is its own fixed layer rather than a per-item opacity/translate
-   stagger, so the whole page resolves as ONE mass — no "first post is here,
-   the rest are still arriving" split. It also leaves the content itself
-   un-animated, so the browser can report LCP on the real paint instead of
-   waiting out a fade on the text (the reason the old stagger existed). */
-.mist {
-    position: fixed;
-    inset: 0;
-    z-index: 150;
-    pointer-events: none;
-    background: var(--bg);
-    -webkit-backdrop-filter: blur(14px);
-    backdrop-filter: blur(14px);
-    animation: mist-part .45s cubic-bezier(.22,1,.36,1) forwards;
-}
-@keyframes mist-part {
-    from { opacity: 1; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
-    to   { opacity: 0; -webkit-backdrop-filter: blur(0);   backdrop-filter: blur(0); }
-}
-/* A faint drift so the clearing reads as moving air, not a plain crossfade. */
-.mist::after {
-    content: '';
-    position: absolute;
-    inset: -20%;
-    background: radial-gradient(60% 45% at 30% 25%, oklch(100% 0 0 / .9), transparent 70%),
-                radial-gradient(50% 40% at 75% 70%, oklch(100% 0 0 / .75), transparent 70%);
-    animation: mist-drift .8s cubic-bezier(.22,1,.36,1) forwards;
-}
-@keyframes mist-drift {
-    from { transform: translate3d(-2%, 1%, 0) scale(1.04); }
-    to   { transform: translate3d(2%, -1%, 0) scale(1); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .mist { display: none; }
-}
 .post-link {
     /* The date used to sit on its own line above the title, which cost every
        entry a whole row and split the title from its excerpt — the two pieces
@@ -244,15 +207,28 @@ body {
     .post-list:has(.post-item:hover) .post-item:not(:hover) { opacity: 1; }
 }
 
-/* page transition: fade out old page, fade in new page */
+/* Page transition: none. The old page was cross-faded out and the new one
+   faded in over .52s combined, which is longer than the swap itself takes
+   (measured: astro:after-swap lands ~15ms after a click) — so most of what
+   you saw was the cross-fade, not the page arriving.
+
+   Deleting the author animations is not enough on its own: Astro's
+   ClientRouter calls document.startViewTransition() on every navigation, so
+   with no CSS of ours naming an animation the browser falls back to its own
+   default cross-fade (measured running ~300ms after the author rules were
+   removed). `animation: none` on the group and both snapshots is what
+   actually cancels it. The group is included deliberately — it carries the
+   size/position morph, which between two full-viewport snapshots has nothing
+   to interpolate, so cancelling it costs no visible alignment.
+
+   `@view-transition { navigation: auto }` stays: without JS the router is gone
+   and a page change is a real cross-document navigation, where the browser
+   would otherwise apply its default cross-fade anyway — so this rule is what
+   makes the no-JS path match the JS one. */
 @view-transition { navigation: auto; }
-::view-transition-old(root) { animation: vt-fade-out .22s ease both; }
-::view-transition-new(root) { animation: vt-fade-in .3s ease .05s both; }
-@keyframes vt-fade-out { to { opacity: 0; } }
-@keyframes vt-fade-in { from { opacity: 0; } to { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) {
-    ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
-}
+::view-transition-group(root),
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; }
 
 /* 640px rather than 680px: ~42 chars per line instead of 45, which makes
    long paragraphs measurably easier to track back to the next line. */
