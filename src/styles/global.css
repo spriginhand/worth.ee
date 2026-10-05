@@ -14,7 +14,27 @@
                    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* Skip link: visually hidden until focused */
+/* Skip link: visually hidden until focused.
+
+   `pointer-events: none` is load-bearing, not a nicety. When focused it sits at
+   (8, 0) at 131x39 with z-index 1000, while the back arrow is at (22, 22) at
+   24x24 with z-index 200 — they overlap by 24x18px, so a click on the arrow's
+   upper-left lands on this link instead and jumps to #main-content. That reads
+   as the back button being dead.
+
+   It is intermittent because focus decides: hidden at `top: -100%` until
+   something takes focus, and client-side navigation does not reset focus the
+   way a full page load does, so it can still be focused when you arrive on an
+   article. Neither CSS rule has changed since the first commit — this overlap
+   has been there since day one, waiting on a Tab.
+
+   Turning pointer events off is also just correct for what this element is: it
+   exists to be reached by keyboard (Tab, then Enter). A mouse user clicking
+   "Skip to content" gains nothing — the content is already what they clicked
+   to read — and it was stealing a click that belonged to the back arrow.
+   `pointer-events` does not affect keyboard focus or Enter activation, so the
+   shortcut still works: verified with a real Tab keypress that the first stop is
+   still this link, and Enter still moves focus to #main-content. */
 .skip-link {
     position: absolute;
     top: -100%;
@@ -26,6 +46,7 @@
     font-size: 14px;
     text-decoration: none;
     border-radius: 0 0 4px 4px;
+    pointer-events: none;
 }
 .skip-link:focus {
     top: 0;
