@@ -1,6 +1,23 @@
 ---
 import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
+
+// Declared rather than left to inference. Without this every prop below was
+// `any`, which is why `post.data.reply` reading a field the content schema never
+// declared compiled silently — `npm run check` has something to check now, and
+// this is what lets it.
+interface Props {
+    title?: string;
+    description?: string;
+    canonical?: string;
+    /** A post page, not a section page. Sets og:type=article, article:published_time, and drops the footer. */
+    articlePage?: boolean;
+    lang?: string;
+    publishedTime?: Date;
+    /** 404 only. Drops canonical, og:url and the sitemap, since /404/ is not a real path. */
+    noindex?: boolean;
+}
+
 const { title = "xiaotian’s blog", description = "xiaotian’s blog — xiaotian", canonical, articlePage = false, lang = 'zh-CN', publishedTime, noindex = false } = Astro.props;
 // Bump OG_IMAGE_VERSION whenever og-image.png changes. Telegram caches the
 // image BY URL and re-serving the same URL does not invalidate it, so the
@@ -31,7 +48,10 @@ const isNotHome = Astro.url.pathname !== '/';
     {articlePage && publishedTime && <meta property="article:published_time" content={new Date(publishedTime).toISOString()} />}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={pageUrl} />
+    {/* Same exclusion as canonical: og:url advertises a URL, and the 404's own
+        /404/ path is not one. Dropping it with the canonical is the difference
+        between "this page does not exist" and a card pointing at nothing. */}
+    {!noindex && <meta property="og:url" content={pageUrl} />}
     <meta property="og:image" content={ogImage} />
     {/* Declared so crawlers size the card without downloading the image first.
         1200x630 is the 1.91:1 that Facebook/LinkedIn/Slack expect. */}
@@ -70,9 +90,14 @@ const isNotHome = Astro.url.pathname !== '/';
         )}
     </div>
 
+    {/* The wrapper is conditional, not just its contents: on the index this
+        rendered `<div id="info-tools"></div>` — a position:fixed element with
+        nothing in it, on the most-viewed page. */}
+    {isNotHome && (
     <div id="info-tools">
-        {isNotHome && <a href="/" class="info-tool" aria-label="Back to index">←</a>}
+        <a href="/" class="info-tool" aria-label="Back to index">←</a>
     </div>
+    )}
 
     <button class="info-tool back-to-top" aria-label="Back to top">
         <svg viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg>

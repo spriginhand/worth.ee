@@ -11,9 +11,9 @@ const sorted = [...posts].sort((a, b) => b.data.date.valueOf() - a.data.date.val
 // group rather than on every row: it is the slowest-varying fact in the list,
 // and repeating it N times is what makes a date column feel heavy. Within a
 // group, entries keep newest-first order.
-const byYear = [];
+const byYear: { year: number; posts: typeof sorted }[] = [];
 for (const post of sorted) {
-    const year = post.data.date.getFullYear();
+    const year = post.data.date.getUTCFullYear();
     const last = byYear[byYear.length - 1];
     if (last && last.year === year) last.posts.push(post);
     else byYear.push({ year, posts: [post] });
@@ -25,9 +25,36 @@ for (const post of sorted) {
 // slash is the ISO-ish date separator: two two-digit numbers split by an
 // oblique line cannot be misread the way "09.29" can be — a period there looks
 // like a decimal point, which is how 2.5 and v1.09.29 are written.
-const fmtDate = (d) =>
-    `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
-const stripTags = (html) => html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+// UTC getters throughout, deliberately. A frontmatter `date: 2026-09-29` parses
+// to UTC midnight, so the LOCAL getMonth()/getDate() read the previous day
+// anywhere west of UTC — measured: the same post renders `09/28` under
+// TZ=America/Los_Angeles and `09/29` under TZ=UTC. That also desynchronised the
+// visible date from the <time datetime> attribute, which was already correct
+// because it uses toISOString(). A post dated 2026-01-01 built on a US worker
+// would land in the 2025 group. UTC is what the frontmatter means.
+const fmtDate = (d: Date) =>
+    `${String(d.getUTCMonth() + 1).padStart(2, '0')}/${String(d.getUTCDate()).padStart(2, '0')}`;
+// Strips Markdown syntax and HTML entities for the excerpt. The `?? ''` is
+// because the glob loader types `body` as possibly undefined; a post with no
+// body renders an empty excerpt rather than failing the build. These regexes only
+// ever see this site's own Markdown — nothing arbitrary is rendered — so this
+// is a display convenience, not a sanitiser. `&#39;` goes first so the `&` it
+// introduces is not re-escaped by the named pass below.
+const stripTags = (md: string) => md
+    .replace(/<[^>]*>/g, '')
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^>\s?/gm, '')
+    .replace(/(\*\*|__|\*|_)(.+?)\1/g, '$2')
+    .replace(/`([^`]*)`/g, '$1')
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
 ---
 
 <BaseLayout>
@@ -44,7 +71,7 @@ const stripTags = (html) => html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').tr
                             <a href={`/posts/${post.id}/`} class="post-link">
                                 <p class="post-title">{post.data.title}</p>
                                 <time class="post-date" datetime={post.data.date.toISOString().slice(0, 10)}>{fmtDate(post.data.date)}</time>
-                                <p class="post-excerpt">{stripTags(post.body).slice(0, 120)}</p>
+                                <p class="post-excerpt">{stripTags(post.body ?? '').slice(0, 120)}</p>
                             </a>
                         </li>
                     ))}
