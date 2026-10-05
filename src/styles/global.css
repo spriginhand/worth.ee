@@ -137,15 +137,30 @@ body {
 .year-label {
     font-size: 12px;
     font-weight: 400;
-    color: var(--text-tertiary);
+    /* grey5 -> grey7. At grey5 the year was the same lightness as the row date
+       and lighter than the excerpt, so it read as the faintest thing on the page
+       — a label that has to be hunted for. grey7 puts it level with the excerpt
+       and clearly above the date in the same grey scale, which is the honest
+       hierarchy: year > row date, both metadata. */
+    color: var(--grey7);
     font-variant-numeric: tabular-nums;
     letter-spacing: .08em;
     margin: 0 0 20px;
 }
 @media(min-width:900px){
     .post-archive { margin-left: -84px; }
-    .year-group { grid-template-columns: 64px minmax(0, 1fr); column-gap: 20px; align-items: baseline; }
-    .year-label { margin: 0; }
+    /* align-items: baseline is gone. Baseline-pinning the year to the first
+       title's baseline was the thing that made it read as part of that row
+       rather than as the label for the group — a 12px numeral sharing a
+       baseline with a 15px/600 CJK title sits at an arbitrary optical height.
+       Instead it starts at the top of the group and is nudged 3px down so its
+       cap-height meets the title's cap-height (the 3px is the difference
+       between the two line-heights' leading, not a magic number), which is
+       alignment the eye can actually verify. -2px measured off the rendered
+       cap-heights: the 12px label and the 15px/1.5 title share a box top but
+       not a cap-height. */
+    .year-group { grid-template-columns: 64px minmax(0, 1fr); column-gap: 20px; align-items: start; }
+    .year-label { margin: 2px 0 0; }
 }
 
 /* Entrance: the page is briefly veiled in mist, and the mist dissipates.
