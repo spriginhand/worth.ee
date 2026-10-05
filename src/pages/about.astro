@@ -110,45 +110,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             the tertiary grey, so the three labels read as one column of labels
             — contact:, mail:, telegram: — rather than as a heading followed by
             content. The colon was the tell that it was never a heading. */}
-        <p class="contact-label">contact:</p>
-        {/* Only the ADDRESS is the link. The label sits outside the <a> and is
-            not part of the hit area: "mail:" and "telegram:" tell you which
-            address the link is, they are not something you aim at. An earlier
-            version wrapped the whole row and relied on the wash appearing only
-            under the address — which meant the cursor and the tab stop covered
-            text that was not the target, and the label looked live without
-            being the thing you meant to click.
+        <p class="contact-label">connect:</p>
+        {/* One sentence, both addresses in it. This was two labelled rows —
+            "mail:" and "telegram:" each with its own value — and the rows
+            carried a lot of apparatus for what they held: a grid wrapper to
+            align them, a small-caps @ so one row's leading circle would not
+            knock its visual start out of line with the other, and comments
+            defending decisions that only mattered because the rows existed.
 
-            Now the row is a grid wrapper and the address is its own <a>, which
-            is also why the label no longer needs the row to be clickable to
-            feel findable: the address carries its own hover and its own focus
-            ring, and those are the only two signals there are. */}
-        <div class="channel">
-            <span class="channel-name">mail:</span>
-            {/* The @ is set small. At full size it is a 15px circle beside a 9px
-                lowercase a, and it sits at the visual centre of the row while the
-                letters around it sit on the baseline — so the address read as
-                starting further right than it did, even though both rows began at
-                the same x. One step down it stops competing with the row.
-
-                The domain is not dimmed, and neither is t.me/ below. Splitting an
-                address into "where to go" and "who it is for" was tried and is
-                not worth it: both halves have to be read to use the address, and
-                the block reads as one label with a value. */}
-            <a class="channel-address" href="mailto:a@worth.ee">a<span class="at">@</span>worth.ee</a>
-        </div>
-        <div class="channel">
-            <span class="channel-name">telegram:</span>
-            {/* Shown as t.me/spriginhand rather than @spriginhand. The @ was
-                tried both ways: stripped entirely, and kept at full size, and
-                both read wrong — the leading circle is wider than anything else
-                that can start an address here, which knocked the visual start
-                out of line with the mail row. t.me/ is lowercase, begins with a
-                t as most handles do, is what the reader would type to reach the
-                page, and needs no size override to sit level with the letters
-                after it. The mail row's @ stays small for the same reason. */}
-            <a class="channel-address" href="https://t.me/spriginhand" rel="me noopener" target="_blank">t.me/spriginhand</a>
-        </div>
+            In a sentence none of that is needed. Both addresses are the same
+            kind of thing, so they take the same kind of treatment: the link
+            carries its own hover wash and its own focus ring, and the text
+            around them is prose. Splitting an address into "where to go" and
+            "who it is for" was tried and dropped for the same reason — both
+            halves have to be read to use it. */}
+        <p class="reach">
+            Reach me at <a href="https://t.me/spriginhand" rel="me noopener" target="_blank">@spriginhand</a> or <a href="mailto:a@worth.ee">a@worth.ee</a>.
+        </p>
     </article>
 </BaseLayout>
 
@@ -181,70 +159,40 @@ import BaseLayout from '../layouts/BaseLayout.astro';
        had a second blank line in it. The two numbers to compare are always the
        blank-pixel counts, never the box gaps. */
     .post-content > p { margin-bottom: 0; }
-    /* Each row names a channel and gives the address that reaches it. The label
-       is not the link — it is the thing you read to know which address the link
-       is. So the row is a plain grid wrapper and only the address is an <a>,
-       which means the cursor and the tab stop cover exactly the words that do
-       something.
+    /* The reach line: prose with two links in it.
 
-       The label holds its prose colour throughout. Only the value responds,
-       and that response is the whole affordance: no underline, no icon, no
-       colour difference between label and value. The wash and the focus ring
-       are the two signals, and they land in the same place. */
-    .channel {
-        /* A fixed column so the two rows line up. 6.2em fits "telegram:" at
-           16px plus the gap; it is deliberately not max-content, which would
-           size per row and knock the addresses out of alignment by the
-           difference in label width. */
-        display: grid;
-        grid-template-columns: 6.2em auto;
-        column-gap: .6em;
-        align-items: baseline;
-        width: fit-content;
-        margin: 0;
-        padding: 0;
-        color: var(--text-secondary);
-    }
-    /* The link. The wash needs room to breathe, so the padding lives here — and
-       a negative margin pulls its left edge back under the column-gap, so the
-       block starts flush with the text above rather than sitting a half-gem in.
-       No underline: the wash is the signal, and an underline under it as well
-       would be two answers to one question. */
-    .channel-address {
-        margin: 0 -8px;
-        padding: 2px 8px;
-        border-radius: 3px;
-        color: inherit;
-        text-decoration: none;
-        transition: background-color .15s ease, color .15s ease;
-    }
-    .channel-address:hover {
-        background-color: oklch(96% 0 0);
+       These links are underlined, which reverses the decision the address rows
+       made. That decision was right THERE and is wrong here: the rows had a
+       label on the left and a value on the right, and that structure was itself
+       the cue — the wash only had to confirm it on hover. Prose has no such
+       structure. Two addresses sitting mid-sentence look like words in it, and
+       a wash that only appears on hover is not a resting-state signal at all.
+
+       So the underline is permanent and the wash stays as the hover. Both are
+       needed: one says "this is a link", the other says "this one, right now".
+       The underline is `text-decoration` rather than a border so it sits at the
+       font's own underline position with the offset below it, and it moves with
+       the text rather than sitting under the padding box. */
+    .reach a {
         color: var(--text-primary);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        text-decoration-thickness: 1px;
+        border-radius: 3px;
+        padding: 2px 4px;
+        margin: 0 -2px;
+        transition: background-color .15s ease;
     }
-    /* A visible ring for keyboard focus, on the link itself. The address is
-       now the only focusable thing in the row, so the ring goes there rather
-       than on the wrapper — matching what a mouse user sees light up. */
-    .channel-address:focus-visible {
+    /* The underline fades out as the wash comes in, so hovering swaps one cue
+       for the other instead of stacking both on top of each other. */
+    .reach a:hover {
+        background-color: oklch(96% 0 0);
+        text-decoration-color: transparent;
+    }
+    /* The ring goes on the link itself: it is the only focusable thing in the
+       sentence, so this is where the keyboard user's attention lands too. */
+    .reach a:focus-visible {
         outline: 2px solid var(--grey7);
         outline-offset: 1px;
     }
-    /* The mail address's @ is set one step down. At full size it is a circle
-       15px across beside a 9px lowercase a and it sits centred on the row while
-       the letters sit on the baseline, so it pulled the eye right and the two
-       addresses looked like they began at different x. Small, it stays part of
-       the word; the tiny right margin keeps "worth.ee" from crowding it. */
-    .at {
-        font-size: .8em;
-        margin-right: .06em;
-    }
-    /* The domain dimming is gone: .tme and .domain matched nothing. Both rows
-       carry two parts — somewhere to send it, and who it is for (t.me/ and
-       worth.ee) — and the plan was to hold the first part back a step so the
-       eye lands on the identifier. That never shipped, because the markup writes
-       both addresses as literal text: "t.me/spriginhand" and
-       "a<span class="at">@</span>worth.ee" — there is no element around the
-       prefix to dim. The rows are one colour, which is the state the page
-       actually shipped in. Doing it properly means wrapping the prefixes in
-       spans; that is a design change, not a cleanup. */
 </style>
