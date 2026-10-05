@@ -3,26 +3,50 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const posts = await getCollection('posts', ({ data }) => !data.draft);
+// Sorted newest-first. Content collections make no ordering promise, so the
+// order the index reads in has to be asked for explicitly.
+const sorted = [...posts].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// Grouped by year, descending. The year is printed once at the head of its
+// group rather than on every row: it is the slowest-varying fact in the list,
+// and repeating it N times is what makes a date column feel heavy. Within a
+// group, entries keep newest-first order.
+const byYear = [];
+for (const post of sorted) {
+    const year = post.data.date.getFullYear();
+    const last = byYear[byYear.length - 1];
+    if (last && last.year === year) last.posts.push(post);
+    else byYear.push({ year, posts: [post] });
+}
+
 const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// Day and abbreviated month only. The year is already the group heading, so
+// repeating it on every row spends width the title needs. "Sep 29" is
+// unambiguous within its group.
+const fmtDate = (d) => `${months[d.getMonth()]} ${String(d.getDate()).padStart(2, '0')}`;
+const stripTags = (html) => html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
 ---
 
 <BaseLayout>
     {/* The index is deliberately just a list, but it still needs one h1 for
         screen readers and heading structure. Hidden visually, not removed. */}
     <h1 class="visually-hidden">文章</h1>
-    <ul class="post-list">
-        {posts.map(post => {
-            const d = post.data.date;
-            const fmtDate = `${months[d.getMonth()]} ${String(d.getDate()).padStart(2, '0')}, ${d.getFullYear()}`;
-            return (
-            <li class="post-item">
-                <a href={`/posts/${post.id}/`} class="post-link">
-                    <p class="post-title">{post.data.title}</p>
-                    <time class="post-date" datetime={post.data.date.toISOString().slice(0, 10)}>{fmtDate}</time>
-                    <p class="post-excerpt">{post.body.replace(/<[^>]*>/g, '').slice(0, 120).trim()}</p>
-                </a>
-            </li>
-            );
-        })}
-    </ul>
+    <div class="post-archive">
+        {byYear.map(group => (
+            <section class="year-group">
+                <h2 class="year-label">{group.year}</h2>
+                <ul class="post-list">
+                    {group.posts.map(post => (
+                        <li class="post-item">
+                            <a href={`/posts/${post.id}/`} class="post-link">
+                                <p class="post-title">{post.data.title}</p>
+                                <time class="post-date" datetime={post.data.date.toISOString().slice(0, 10)}>{fmtDate(post.data.date)}</time>
+                                <p class="post-excerpt">{stripTags(post.body).slice(0, 120)}</p>
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            </section>
+        ))}
+    </div>
 </BaseLayout>

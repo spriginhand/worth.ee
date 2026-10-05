@@ -118,6 +118,36 @@ body {
 
 .post-list { list-style: none; }
 
+/* Year groups. The year is the slowest-varying fact in the list, so it is
+   printed once per group in its own column instead of on every row — which is
+   also what lets the row date shrink to "Sep 29". `.year-label` is an h2 so the
+   document outline still reads year > post.
+
+   The year column is hung in the left margin rather than inside the measure:
+   the archive is pulled left by the column plus its gutter (64 + 20 = 84px) so
+   the posts keep the exact left edge they had without it. That pull is only
+   safe while the viewport is wide enough to actually have that margin, so it
+   lives behind a min-width rather than being cancelled by a max-width further
+   down — a negative margin with no matching floor is what previously clipped
+   the year off-screen between 640px and 800px. 900px is where the auto margin
+   is (900 - 680) / 2 = 110px, comfortably more than the 84px borrowed. */
+.post-archive { margin-left: 0; }
+.year-group { display: grid; grid-template-columns: minmax(0, 1fr); }
+.year-group + .year-group { margin-top: 56px; }
+.year-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .08em;
+    margin: 0 0 20px;
+}
+@media(min-width:900px){
+    .post-archive { margin-left: -84px; }
+    .year-group { grid-template-columns: 64px minmax(0, 1fr); column-gap: 20px; align-items: baseline; }
+    .year-label { margin: 0; }
+}
+
 /* Entrance: the page is briefly veiled in mist, and the mist dissipates.
    The veil is its own fixed layer rather than a per-item opacity/translate
    stagger, so the whole page resolves as ONE mass — no "first post is here,
@@ -285,9 +315,11 @@ body {
        and the page reads denser rather than more cramped. */
     .post-content p { font-size: 15px; }
     /* Back to a single column: the date keeps its own line above the title.
-       A 342px measure cannot hold a CJK title and "Sep 29, 2026" side by side
-       without either wrapping the title to two lines or squeezing it into a
-       ~190px stub. Stacked, the title gets the full width back. */
+       A 342px measure cannot hold a CJK title and "Sep 29" side by side without
+       either wrapping the title to two lines or squeezing it into a narrow
+       stub. Stacked, the title gets the full width back. The year needs no
+       rule here — below 900px `.year-group` is already a single column and the
+       label carries its own 20px bottom margin. */
     .post-link { grid-template-columns: minmax(0, 1fr); }
     .post-title { grid-column: 1; grid-row: 2; margin: 0; }
     .post-date { grid-column: 1; grid-row: 1; margin-bottom: 4px; color: var(--text-secondary); }
