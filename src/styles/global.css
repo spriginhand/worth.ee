@@ -155,17 +155,32 @@ body {
 @media (prefers-reduced-motion: reduce) {
     .mist { display: none; }
 }
-.post-link { display: block; text-decoration: none; color: inherit; }
+.post-link {
+    /* The date used to sit on its own line above the title, which cost every
+       entry a whole row and split the title from its excerpt — the two pieces
+       of actual content — with metadata in between. A two-column grid puts the
+       date back on the title's line, right-aligned, where it reads as the
+       margin annotation it is. `auto` (not a fixed track) so the column sizes
+       to the date, and `minmax(0, 1fr)` so the title can shrink below its
+       intrinsic width instead of pushing the grid wider than the container. */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 16px;
+    row-gap: 6px;
+    text-decoration: none;
+    color: inherit;
+}
 /* The only gap between posts used to be .post-excerpt's 8px margin-bottom —
    just 2px more than the 6px title-to-excerpt gap, so the three entries read as
    one block. Own the inter-item spacing here instead. */
 .post-item + .post-item { margin-top: 40px; }
 .post-item:hover .post-date { color: var(--hover); }
 .post-item:hover .post-title { color: var(--hover); }
-.date-container { display: block; margin-bottom: 4px; }
-.post-date { font-size: 12px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; letter-spacing: .04em; transition: color .2s ease, opacity .2s ease; }
-.post-title { font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: normal; transition: color .2s ease; line-height: 1.5; margin: 0 0 6px; }
-.post-excerpt { margin: 0 0 8px; font-size: 14px; color: oklch(46% 0 0); letter-spacing: normal; line-height: 1.75; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.post-date { grid-column: 2; align-self: baseline; font-size: 12px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; letter-spacing: .04em; white-space: nowrap; transition: color .2s ease, opacity .2s ease; }
+.post-title { grid-column: 1; font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: normal; transition: color .2s ease; line-height: 1.5; margin: 0; }
+/* The excerpt spans both columns: it belongs to the entry, not to either the
+   title's column or the date's. */
+.post-excerpt { grid-column: 1 / -1; margin: 0 0 8px; font-size: 14px; color: oklch(46% 0 0); letter-spacing: normal; line-height: 1.75; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* Hover: siblings recede. Shorter than the entrance — hover should feel
    instant, the entrance is allowed to breathe. The inter-item gap is margin,
@@ -269,7 +284,14 @@ body {
        ~21.4 -> ~23, back inside the 25-35 CJK comfort range's lower half,
        and the page reads denser rather than more cramped. */
     .post-content p { font-size: 15px; }
-    .post-date { color: var(--text-secondary); }
+    /* Back to a single column: the date keeps its own line above the title.
+       A 342px measure cannot hold a CJK title and "Sep 29, 2026" side by side
+       without either wrapping the title to two lines or squeezing it into a
+       ~190px stub. Stacked, the title gets the full width back. */
+    .post-link { grid-template-columns: minmax(0, 1fr); }
+    .post-title { grid-column: 1; grid-row: 2; margin: 0; }
+    .post-date { grid-column: 1; grid-row: 1; margin-bottom: 4px; color: var(--text-secondary); }
+    .post-excerpt { grid-column: 1; grid-row: 3; }
     /* No max-width/nowrap here: truncating a CJK title breaks the word, and
        the list is short enough that wrapping costs nothing. */
     .site-footer { padding: 32px 16px 24px; }
