@@ -346,3 +346,40 @@ body {
 @media(max-width:360px){
     .container { padding-left: 16px; padding-right: 16px; }
 }
+
+/* Back link on an article: hung in the left margin, not pinned to the corner.
+
+   The corner put the arrow at (22, 22) with the article's text starting 294px
+   to its right, so it read as browser chrome rather than as part of the page.
+   This is the same trick the index already uses for the year: borrow the auto
+   margin the centred container does not use, and hang the arrow in it, so the
+   back link and the year label would occupy one column if they were ever on the
+   same page.
+
+   84px is that column plus its gutter — 64 + 20, the figures `.post-archive`
+   uses. `50% - 340px` is the container's left edge and deliberately not
+   `(100vw - 680px) / 2`: 100vw includes the scrollbar, the centred container
+   does not, so the vw form lands ~6px off on every page that scrolls, which is
+   every article. The +24px is the container's own left padding.
+
+   900px floor, same as `.post-archive`: below it the container has no auto
+   margin left to borrow, and the phone's 24px gutter is all the room there is —
+   which is why this is a desktop-only placement and the phone keeps the corner.
+
+   top: 131px aligns the two optically, not their boxes — they share a box top
+   only by accident, and the eye reads cap-height. Measured with the same
+   reference glyph ('H', since cap-height belongs to the typeface and a CJK
+   glyph's ascent is not it): the h1's box top is 128 with its cap at 139 (24px
+   type, 33.6px line box), the arrow's box top is 131 with its cap at 139. Same
+   relationship the index already uses between the year and the first title,
+   where the year is nudged 2px off the title's cap for exactly this reason.
+
+   An earlier attempt at 121px was measured against the title string's own glyphs
+   rather than a shared reference, which put it 10px high; 131px is the value
+   that holds when both are measured the same way. */
+@media(min-width:900px){
+    #info-tools {
+        top: 131px;
+        left: max(24px, calc(50% - 340px - 84px + 24px));
+    }
+}
