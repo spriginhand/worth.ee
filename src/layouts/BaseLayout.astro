@@ -56,12 +56,19 @@ const isNotHome = Astro.url.pathname !== '/';
         <main class="container" id="main-content">
             <slot />
         </main>
+        {/* No footer on an article. The page already ends with the reply line,
+            and a reader who got here from the index is mid-thought, not looking
+            for navigation — the ← back link and back-to-top cover getting out.
+            Keyed off articlePage rather than a new prop so there is one flag
+            for "this is a post" and not two that can disagree. */}
+        {!articlePage && (
         <footer class="site-footer">
             <p class="footer-nav">
                 <a href="/">Index</a><span class="sep">·</span><a href="/about/">About</a><span class="sep">·</span><a href="/privacy/">Privacy</a>
             </p>
             <p class="copyright">© xiaotian</p>
         </footer>
+        )}
     </div>
 
     <div id="info-tools">
