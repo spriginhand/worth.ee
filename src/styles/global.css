@@ -329,16 +329,11 @@ body {
        ~21.4 -> ~23, back inside the 25-35 CJK comfort range's lower half,
        and the page reads denser rather than more cramped. */
     .post-content p { font-size: 15px; }
-    /* Back to a single column: the date keeps its own line above the title.
-       A 342px measure cannot hold a CJK title and "Sep 29" side by side without
-       either wrapping the title to two lines or squeezing it into a narrow
-       stub. Stacked, the title gets the full width back. The year needs no
-       rule here — below 900px `.year-group` is already a single column and the
-       label carries its own 20px bottom margin. */
-    .post-link { grid-template-columns: minmax(0, 1fr); }
-    .post-title { grid-column: 1; grid-row: 2; margin: 0; }
-    .post-date { grid-column: 1; grid-row: 1; margin-bottom: 4px; color: var(--text-secondary); }
-    .post-excerpt { grid-column: 1; grid-row: 3; }
+    /* The date stays on the title's line here too, as the margin annotation it
+       is. The `auto` date track is only ~46px wide, so the title keeps ~280px
+       of a 342px measure — enough for a short CJK title, and a long one wraps
+       without pushing the grid wider because the track is `minmax(0, 1fr)`. */
+    .post-date { color: var(--text-secondary); }
     /* No max-width/nowrap here: truncating a CJK title breaks the word, and
        the list is short enough that wrapping costs nothing. */
     .site-footer { padding: 32px 16px 24px; }

@@ -19,11 +19,14 @@ for (const post of sorted) {
     else byYear.push({ year, posts: [post] });
 }
 
-const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-// Day and abbreviated month only. The year is already the group heading, so
-// repeating it on every row spends width the title needs. "Sep 29" is
-// unambiguous within its group.
-const fmtDate = (d) => `${months[d.getMonth()]} ${String(d.getDate()).padStart(2, '0')}`;
+// Month and day, digits only. The year is already the group heading, so
+// repeating it on every row spends width the title needs; and a numeric
+// "09/29" is narrower than "Sep 29" and needs no translation to read. The
+// slash is the ISO-ish date separator: two two-digit numbers split by an
+// oblique line cannot be misread the way "09.29" can be — a period there looks
+// like a decimal point, which is how 2.5 and v1.09.29 are written.
+const fmtDate = (d) =>
+    `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
 const stripTags = (html) => html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
 ---
 
