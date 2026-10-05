@@ -233,7 +233,14 @@ body {
 /* 640px rather than 680px: ~42 chars per line instead of 45, which makes
    long paragraphs measurably easier to track back to the next line. */
 .post-content { max-width: 640px; margin: 0 auto; padding-top: 32px; }
-.post-content h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: normal; margin: 0 0 1.25rem; line-height: 1.4; }
+/* The h1's own bottom margin (20px) sits directly against the first
+   paragraph — .post-content p has no margin-top — so the title and the opening
+   line were 20px apart, closer than the 27.2px line-height inside the body: the
+   title read as part of the first paragraph rather than as its own line. 3rem
+   puts a full body line between them, which is what "one blank line" means
+   here, and it holds at both sizes because the margin is on the h1 and the
+   paragraph's line-height only changes with the 15px phone type. */
+.post-content h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: normal; margin: 0 0 3rem; line-height: 1.4; }
 .post-content h2 { font-size: 1.1rem; font-weight: 600; letter-spacing: normal; margin: 1.5rem 0 .5rem; line-height: 1.5; }
 /* letter-spacing: 0 — the .015em here is a Latin-only tweak. On CJK glyphs it
    opens gaps between every character and loosens punctuation. */
