@@ -86,6 +86,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             What remains is exactly what is true: three essays in Chinese, written
             by the author, not machine-generated. The English chrome around them
             is not covered by the claim, and does not need to be. */}
+        {/* No .claim rule anywhere: the class names a paragraph that was styled
+            once and then not, so it has been carrying no styles for the whole
+            life of the page. Kept as a hook for now — the paragraph is the one
+            piece of prose on this site that states a fact about itself, and it
+            is the first thing that should look different if anything here
+            changes. */}
         <p class="claim">
             Every word here was written by me. Nothing on this site was
             generated, drafted, or edited by an AI system.
@@ -232,14 +238,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         font-size: .8em;
         margin-right: .06em;
     }
-    /* The domain is held back a step from the name it points at. Both rows are
-       addresses, and both carry two parts: somewhere to send it, and who it is
-       for — t.me/ and worth.ee. Dimming the first part in each row lets the eye
-       land on the identifier, and it ties back to the footer's separator, which
-       is the same muted grey. Same grey on both rows, so the two keep matching. */
-    .tme,
-    .domain { color: var(--text-tertiary); }
-    /* Sits directly against the name it precedes, so it gets no extra gap — the
-       dimming already separates it, and a margin would open a hole. */
-    .tme, .domain { margin-right: .06em; }
+    /* The domain dimming is gone: .tme and .domain matched nothing. Both rows
+       carry two parts — somewhere to send it, and who it is for (t.me/ and
+       worth.ee) — and the plan was to hold the first part back a step so the
+       eye lands on the identifier. That never shipped, because the markup writes
+       both addresses as literal text: "t.me/spriginhand" and
+       "a<span class="at">@</span>worth.ee" — there is no element around the
+       prefix to dim. The rows are one colour, which is the state the page
+       actually shipped in. Doing it properly means wrapping the prefixes in
+       spans; that is a design change, not a cleanup. */
 </style>
