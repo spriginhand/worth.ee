@@ -92,7 +92,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 /* No scroll-behavior: smooth here. It applies to every scroll on the page,
    including the browser's own scroll-position restoration after a
-   ClientRouter navigation — which turns an instant restore into a slow drift
+   navigation — which turns an instant restore into a slow drift
    that reads as jank. The back-to-top button asks for smooth scrolling
    explicitly where it is actually wanted. */
 body {
@@ -228,27 +228,6 @@ body {
        hover-recede never applies for reduced-motion users. */
     .post-list:has(.post-item:hover) .post-item:not(:hover) { opacity: 1; }
 }
-
-/* Page transition: cancelled, not configured.
-
-   Astro's ClientRouter calls document.startViewTransition() on every
-   navigation, so the browser runs its default cross-fade whether or not any CSS
-   of ours asks for it — naming no animation is not the same as having none.
-   Cancelling the group and both snapshots is what makes a click swap the page
-   outright. The group is included deliberately: it carries the size/position
-   morph, which between two full-viewport snapshots has nothing to interpolate,
-   so cancelling it costs no visible alignment. Measured on the index: zero
-   animations running at any point during a navigation.
-
-   `@view-transition { navigation: auto }` is deliberately NOT set. That rule
-   opts same-origin cross-document navigations into the transition API, and with
-   JS unavailable the router is gone and a page change is a real cross-document
-   navigation — so the rule would hand the no-JS path a cross-fade the JS path
-   does not have. Leaving it unset makes that path a hard cut, which is the
-   browser's own default and matches what the JS path now does. */
-::view-transition-group(root),
-::view-transition-old(root),
-::view-transition-new(root) { animation: none; }
 
 /* 640px rather than 680px: ~42 chars per line instead of 45, which makes
    long paragraphs measurably easier to track back to the next line. */

@@ -1,5 +1,4 @@
 ---
-import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
 
 // Declared rather than left to inference. Without this every prop below was
@@ -66,7 +65,6 @@ const isNotHome = Astro.url.pathname !== '/';
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
-    <ClientRouter fallback="none" />
 </head>
 <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
@@ -110,8 +108,7 @@ const isNotHome = Astro.url.pathname !== '/';
         // forced-layout read: asking for it inside the rAF callback makes the
         // browser recompute layout, then the classList/style writes below
         // dirty it again — a read/write thrash on every scroll frame. The
-        // document height cannot change between navigations, so once is enough
-        // and init() re-runs on astro:page-load to refresh it.
+        // document height cannot change between navigations, so once is enough.
         var maxScroll = 0;
         function measure(){
             maxScroll = document.documentElement.scrollHeight - window.innerHeight;
@@ -136,8 +133,6 @@ const isNotHome = Astro.url.pathname !== '/';
         function onScroll(){if(!r){r=true;requestAnimationFrame(bind)}}
         window.addEventListener('scroll',onScroll,{passive:true});
 
-        // Re-run on every client-side navigation so maxScroll is re-measured
-        // for the swapped-in document.
         function init(){
             r=false; measure(); bind();
             var btt=document.querySelector('.back-to-top');
@@ -147,7 +142,6 @@ const isNotHome = Astro.url.pathname !== '/';
             }
         }
         init();
-        document.addEventListener('astro:page-load', init);
     })();
     </script>
 </body>
