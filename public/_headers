@@ -1,0 +1,27 @@
+# Cloudflare Pages caching. Without this file Pages serves Astro's defaults:
+# every font and chunk revalidates on each visit (max-age=14400,
+# must-revalidate) and the HTML is never edge-cached at all (cf-cache-status:
+# DYNAMIC), so a cold visitor pays a full round trip to the origin for the
+# font before any text paints.
+#
+# Fingerprinted paths are safe to cache forever: Astro emits a content hash
+# into the filename, so a changed file is a changed URL. The font is not
+# fingerprinted, so it gets a year rather than forever — a new Inter cut would
+# otherwise be unreachable for every cached client until the entry expired.
+#
+# Microsite / blog pages: HTML is revalidated on each navigation, but the
+# edge holds it for seven minutes so repeat visits hit the cache instead of
+# the origin. stale-while-revalidate lets the edge serve stale content for
+# thirty minutes while it silently re-fetches in the background.
+#
+# Rule order matters: Cloudflare applies the first matching rule per path.
+#
+
+/_astro/*            Cache-Control: public, max-age=31536000, immutable
+/fonts/*              Cache-Control: public, max-age=31536000, immutable
+/favicon.svg          Cache-Control: public, max-age=604800
+/og-image.png         Cache-Control: public, max-age=604800
+
+/*
+  Cache-Control: public, max-age=0, s-maxage=420, stale-while-revalidate=1800, must-revalidate
+*/
