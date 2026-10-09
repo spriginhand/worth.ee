@@ -28,4 +28,4 @@
   round-trip before painting, which reads as a stall on slow links. The
   edge now serves stale content immediately and re-fetches in the background.
 */
-/                   Cache-Control: public, max-age=0, s-maxage=420, stale-while-revalidate=86400
+/                   Cache-Control: public, max-age=0, s-maxage=420, stale-while-revalidate=25200
