@@ -142,19 +142,20 @@ body {
 
 .post-list { list-style: none; }
 
-/* Year groups. The year is the slowest-varying fact in the list, so it is
-   printed once per group in its own column instead of on every row — which is
-   also what lets the row date shrink to "09/29". `.year-label` is an h2 so the
-   document outline still reads year > post.
+/* Year groups. The year is printed once at the head of its group rather than
+   on every row: it is the slowest-varying fact in the list, and repeating it
+   N times is what makes a date column feel heavy. Within a group, entries
+   keep newest-first order.
 
-   The year column is hung in the left margin rather than inside the measure:
-   the archive is pulled left by the column plus its gutter (64 + 20 = 84px) so
-   the posts keep the exact left edge they had without it. That pull is only
-   safe while the viewport is wide enough to actually have that margin, so it
-   lives behind a min-width rather than being cancelled by a max-width further
-   down — a negative margin with no matching floor is what previously clipped
-   the year off-screen between 640px and 800px. 900px is where the auto margin
-   is (900 - 680) / 2 = 110px, comfortably more than the 84px borrowed. */
+   The year sits flush on the text column's left edge — the same edge the
+   titles align to — as a heading above its group, not hung out in the margin.
+   An earlier version hung it 84px into the left auto-margin (the trick the
+   article's back arrow still uses), aligned with the first title's
+   cap-height. It read as a stray annotation attached to nothing: outside the
+   column, at a smaller size, optically level with a row it did not belong to.
+   Flush left it is unambiguous — the group's own heading, on the page's
+   left-aligned line. Cargo's archive pages read the same way: the year is a
+   label on the content grid, never outside it. */
 .post-archive { margin-left: 0; }
 .year-group { display: grid; grid-template-columns: minmax(0, 1fr); }
 .year-group + .year-group { margin-top: 56px; }
@@ -172,19 +173,48 @@ body {
     margin: 0 0 20px;
 }
 @media(min-width:900px){
-    .post-archive { margin-left: -84px; }
-    /* align-items: baseline is gone. Baseline-pinning the year to the first
-       title's baseline was the thing that made it read as part of that row
-       rather than as the label for the group — a 12px numeral sharing a
-       baseline with a 15px/600 CJK title sits at an arbitrary optical height.
-       Instead it starts at the top of the group and is nudged 3px down so its
-       cap-height meets the title's cap-height (the 3px is the difference
-       between the two line-heights' leading, not a magic number), which is
-       alignment the eye can actually verify. -2px measured off the rendered
-       cap-heights: the 12px label and the 15px/1.5 title share a box top but
-       not a cap-height. */
-    .year-group { grid-template-columns: 64px minmax(0, 1fr); column-gap: 20px; align-items: start; }
-    .year-label { margin: 2px 0 0; }
+    /* Wide screens: the year leaves the text column and hangs at the
+       screen's left edge — the same place Cargo puts its archive dates,
+       outside the measure rather than on it. margin-left resolves the year
+       from the column's left edge (50vw - 316px, i.e. centred container
+       minus its 340px half-width plus 24px padding) back to ~24-32px from
+       the viewport edge, matching the site's 24px gutter rhythm. A negative
+       margin rather than absolute positioning: it stays in flow, so the
+       year still stacks above its group and scrolls with it, and the
+       titles keep the exact centring they had — only the year moves.
+       The ~7px variance with a classic (non-overlay) scrollbar is
+       accepted: 50vw counts the scrollbar, the centred container does not.
+       Six pixels on a four-digit label in the outer gutter is invisible;
+       the same variance on the titles would not be, which is why the
+       titles are not touched.
+       355px (not 340) aligns the label with the footer's "info": both sit
+       on the same 32px outer gutter, so the year reads as the top of a
+       left-edge rail the footer completes at the bottom — a running index
+       of the archive.
+
+       position: sticky makes the year answer "which year am I reading"
+       without the reader scrolling back up to check. It pins for exactly
+       the height of its own .year-group (the section is its containing
+       block), so the label holds in the gutter while the reader is inside
+       that year and the next year's label scrolls up to take its place —
+       the rail hands off between groups instead of accumulating. top: 24px
+       is the gutter rhythm: the same line the footer's info sits on at
+       the bottom of the page. Sticky is scoped to this media query
+       because it needs the outer gutter to exist — below 900px the year
+       is inline above its group and pinning it would overlap the titles. */
+    .year-label { margin-left: calc(355px - 50vw); position: sticky; top: 24px; }
+    .year-group + .year-group { margin-top: 72px; }
+    /* Only the first group opens with its title at the same y the online
+       version has (96px). On the live site the year rides inline in the
+       left margin of the first row; here it is a heading line of its own,
+       which pushes the archive's first title down by exactly that line —
+       20px margin + ~16px line box = 36, measured 40 with the year's
+       letter-spacing. Pull the whole first group up by 40px so the
+       un-scrolled page opens at the same height as the committed one;
+       the year keeps its y=96 and only the content below it moves.
+       Groups 2+ are untouched: their extra 72px inter-group air is a
+       deliberate rhythm, not an accident to correct. */
+    .year-group:first-child .post-list { margin-top: -40px; }
 }
 
 .post-link {
@@ -231,7 +261,12 @@ body {
 
 /* 640px rather than 680px: ~42 chars per line instead of 45, which makes
    long paragraphs measurably easier to track back to the next line. */
-.post-content { max-width: 640px; margin: 0 auto; padding-top: 32px; }
+/* No padding-top: it pushed the h1 to y=128 while the index's first title
+   sits at y=96, so the same site opened at two different heights. With it
+   removed, article/About/Privacy content starts at the same 96px the index
+   does — the container's own 6rem — and the article's back arrow moves with
+   it (see the #info-tools rule below). */
+.post-content { max-width: 640px; margin: 0 auto; }
 /* The h1's own bottom margin (20px) sits directly against the first
    paragraph — .post-content p has no margin-top — so the title and the opening
    line were 20px apart, closer than the 27.2px line-height inside the body: the
@@ -398,10 +433,20 @@ body {
    same page.
 
    84px is that column plus its gutter — 64 + 20, the figures `.post-archive`
-   uses. `50% - 340px` is the container's left edge and deliberately not
+   uses — pushed a further 24px out so the arrow's 24px box sits fully in
+   the margin rather than grazing the text column: at `- 84px` the arrow's
+   right edge came within 60px of the h1, close enough to read as an
+   annotation on the title instead of a way out of the page. At `- 108px`
+   the gap is 84px, the same distance the year label enjoys on the index.
+   `50% - 340px` is the container's left edge and deliberately not
    `(100vw - 680px) / 2`: 100vw includes the scrollbar, the centred container
    does not, so the vw form lands ~6px off on every page that scrolls, which is
    every article. The +24px is the container's own left padding.
+
+   The `max(24px, ...)` floor still matters at the 900px breakpoint: there
+   the auto margin is only 110px, and `50% - 340px - 108px + 24px` resolves
+   to 26px — above the floor, so the arrow never jumps. A wider push would
+   cross it and the placement would snap at some viewport width.
 
    900px floor, same as `.post-archive`: below it the container has no auto
    margin left to borrow, and the phone's 24px gutter is all the room there is —
@@ -420,7 +465,23 @@ body {
    that holds when both are measured the same way. */
 @media(min-width:900px){
     #info-tools {
-        top: 131px;
-        left: max(24px, calc(50% - 340px - 84px + 24px));
+        /* top: 99px, not 131px. It tracks the h1's box top (now 96 after
+           .post-content lost its 32px padding-top): the arrow's 24px box
+           spans 99–123 against the h1's box at 96, a 3px offset that puts
+           both cap-heights level — the h1's 24px type in a 33.6px line box
+           has its cap at 107, the arrow's 14px glyph in a 24px box has its
+           cap at 107 too. Box tops differ by 3px on purpose; caps are what
+           the eye aligns. The old 131px was measured against the old h1
+           position and is now 32px too low. */
+        top: 99px;
+        /* 32px — the same left edge the index's year label and the footer's
+           "info" sit on. All three hang off one outer rail, so the arrow is
+           unambiguously page furniture rather than an annotation on the
+           article: at 32px its right edge is 285px from the h1, the furthest
+           any of the three sits from the measure while still reading as
+           part of the page. Not calc'd off the container: the rail is a
+           fixed viewport coordinate, and deriving it from 50% - 340px would
+           tie it to the column it is deliberately not aligned with. */
+        left: 32px;
     }
 }
