@@ -276,26 +276,6 @@ body {
    paragraph's line-height only changes with the 15px phone type. */
 .post-content h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: normal; margin: 0 0 3rem; line-height: 1.4; }
 .post-content h2 { font-size: 1.1rem; font-weight: 600; letter-spacing: normal; margin: 1.5rem 0 .5rem; line-height: 1.5; }
-/* The date under the title. Same 12px grey as the index row date, so the
-   two pages speak the same language about time.
-   margin: -2.35rem 0 2rem — the negative top all but cancels the h1's
-   3rem bottom margin (adjoining margins combine: 3rem - 2.35rem = 10.4px),
-   so the date sits close under the title without fusing into it — close
-   enough to belong to the title, far enough to read as its own line.
-   2px was tried and rejected: the two elements became one dense block
-   and the date lost its independence. 2rem below puts one body line of
-   air between the date and the first paragraph. Negative rather than
-   shrinking the h1's margin because that 3rem is measured for pages
-   with no date (About, Privacy) — touching it would pull their body
-   text up against the title. */
-.post-date-line {
-    display: block;
-    font-size: 12px;
-    color: var(--text-tertiary);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: .04em;
-    margin: -2.35rem 0 2rem;
-}
 /* letter-spacing: 0 — the .015em here is a Latin-only tweak. On CJK glyphs it
    opens gaps between every character and loosens punctuation. */
 .post-content p { font-size: 1rem; line-height: 1.7; color: var(--text-secondary); margin: 0 0 .875rem; letter-spacing: normal; }
