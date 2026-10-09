@@ -17,9 +17,11 @@ interface Props {
     noindex?: boolean;
     /** Terminal pages (About, Privacy): drops the footer, same as an article. */
     nofooter?: boolean;
+    /** The year this page belongs to, for the back link's "← 2026". Omit on pages with no year (index, 404). */
+    backYear?: number;
 }
 
-const { title = "xiaotian’s blog", description = "xiaotian’s blog — xiaotian", canonical, articlePage = false, lang = 'zh-CN', publishedTime, noindex = false } = Astro.props;
+const { title = "chenxiaotian’s blog", description = "chenxiaotian’s blog — chenxiaotian", canonical, articlePage = false, lang = 'zh-CN', publishedTime, noindex = false, nofooter = false, backYear } = Astro.props;
 // Bump OG_IMAGE_VERSION whenever og-image.png changes. Telegram caches the
 // image BY URL and re-serving the same URL does not invalidate it, so the
 // version query is the only thing that forces a fresh fetch.
@@ -40,7 +42,7 @@ const isNotHome = Astro.url.pathname !== '/';
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preload" href="/fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin>
     <meta name="description" content={description} />
-    <meta name="author" content="xiaotian" />
+    <meta name="author" content="chenxiaotian" />
     {/* A 404 is served at /404.html, so the canonical /404/ path does not
         exist. Pointing at it is a dead link, so drop canonical and noindex. */}
     {!noindex && <link rel="canonical" href={pageUrl} />}
@@ -59,7 +61,7 @@ const isNotHome = Astro.url.pathname !== '/';
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={title} />
-    <meta property="og:site_name" content="xiaotian’s blog" />
+    <meta property="og:site_name" content="chenxiaotian’s blog" />
     <meta property="og:locale" content={lang === 'en' ? 'en_US' : 'zh_CN'} />
     {/* X/Twitter ignores og:* entirely and only reads twitter:card, so
         without this a shared link renders as a bare URL there. */}
@@ -95,7 +97,7 @@ const isNotHome = Astro.url.pathname !== '/';
             <p class="footer-nav">
                 <a href="/info/">info</a><span class="sep">·</span><a href="/privacy/">privacy</a>
             </p>
-            <p class="copyright">© xiaotian</p>
+            <p class="copyright">© chenxiaotian</p>
         </footer>
         )}
     </div>
@@ -105,7 +107,14 @@ const isNotHome = Astro.url.pathname !== '/';
         nothing in it, on the most-viewed page. */}
     {isNotHome && (
     <div id="info-tools">
-        <a href="/" class="info-tool" aria-label="Back to index">←</a>
+        {/* "← 2026" rather than a bare arrow: the year is the index's own
+            vocabulary (its groups are years), so carrying it onto the
+            article page ties the two pages together — a reader who
+            arrived from a link sees which year they landed in, and the
+            link still goes home to the whole index. The arrow alone said
+            "back" but not "back to what", and the article page had no
+            other trace of the year system the index is built on. */}
+        <a href="/" class="info-tool" aria-label="Back to index">← <span class="back-year">{backYear}</span></a>
     </div>
     )}
 

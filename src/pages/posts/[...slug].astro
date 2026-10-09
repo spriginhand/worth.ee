@@ -33,7 +33,7 @@ const mailHref = `mailto:a@worth.ee?subject=${mailSubject}`;
 const prompt = post.data.reply;
 ---
 
-<BaseLayout title={title} description={description} canonical={canonical} articlePage={true} publishedTime={date}>
+<BaseLayout title={title} description={description} canonical={canonical} articlePage={true} publishedTime={date} backYear={date.getUTCFullYear()}>
     <article class="post-content">
         <h1>{title}</h1>
         <Content />
