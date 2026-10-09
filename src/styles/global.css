@@ -238,7 +238,42 @@ body {
 .post-item + .post-item { margin-top: 40px; }
 .post-item:hover .post-date { color: var(--hover); }
 .post-date { grid-column: 2; align-self: baseline; font-size: 12px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; letter-spacing: .04em; white-space: nowrap; transition: color .2s ease, opacity .2s ease; }
-.post-title { grid-column: 1; font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: normal; transition: color .2s ease; line-height: 1.5; margin: 0; }
+.post-title {
+    grid-column: 1;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: normal;
+    line-height: 1.5;
+    margin: 0;
+    /* Hover: a hairline expands left-to-right under the title and the title
+       itself lifts 1px — the one gesture the index allows, and enough to make
+       the row feel like a link without becoming a button. */
+    transition: color .2s ease;
+    position: relative;
+}
+.post-title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 1px;
+    background: var(--grey7);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+    pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+    .post-title { transition: color .2s ease, transform .2s ease; }
+    .post-link:hover .post-title { transform: translateY(-1px); }
+    .post-link:hover .post-title::after { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .post-title::after { display: none; }
+    .post-link:hover .post-title { transform: none; }
+}
 /* The excerpt spans both columns: it belongs to the entry, not to either the
    title's column or the date's. */
 .post-excerpt { grid-column: 1 / -1; margin: 0 0 8px; font-size: 14px; color: oklch(46% 0 0); letter-spacing: normal; line-height: 1.75; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -483,5 +518,13 @@ body {
            fixed viewport coordinate, and deriving it from 50% - 340px would
            tie it to the column it is deliberately not aligned with. */
         left: 32px;
+    }
+    /* Desktop back arrow: 56px hit area. The visible box and glyph are
+       unchanged — only the pseudo-element's invisible clickable region
+       grows. This selector is scoped to #info-tools so the back-to-top
+       button's 44px area is untouched. */
+    #info-tools .info-tool::after {
+        width: 56px;
+        height: 56px;
     }
 }
