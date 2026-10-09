@@ -311,12 +311,27 @@ body {
    inline `style.opacity` on this element, so the class is never added to it. */
 
 .page-wrapper { flex: 1 1 auto; display: flex; flex-direction: column; width: 100%; }
+/* Cargo-style footer: a hairline, then the two lines pushed to opposite
+   edges of the viewport rather than collected in the centred 680px measure.
+   The nav keeps its 11px tap padding, which is what gives the footer its
+   height — a hairline needs air on both sides more than a bar does.
+   max-width is dropped so the hairline and the two text edges bleed with
+   the viewport, contrasting the narrow column the rest of the site lives
+   in. That contrast is the point: everywhere else is a centred measure,
+   and the footer is the one place the page reaches the edges. */
 .site-footer {
     flex-shrink: 0;
-    text-align: center;
-    padding: 40px 24px 32px;
+    width: 100%;
+    max-width: none;
+    padding: 32px 32px 32px;
     font-size: 13px;
     color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    column-gap: 24px;
+    row-gap: 8px;
 }
 /* Tap targets: text is 13px, so pad out to a comfortable mobile size without changing the visual */
 .footer-nav a, .site-footer a {
@@ -332,11 +347,8 @@ body {
 }
 .site-footer a:hover { color: var(--hover); }
 .site-footer .copyright {
-    /* 20px, not 14px. The nav line is 44px tall because its links carry an
-       11px tap-target padding, so a 14px gap left the nav and the copyright
-       reading as one two-line block. At 20px they separate into what they are:
-       where the site goes, and who wrote it. */
-    margin-top: 20px;
+    /* No margin-top now that nav and copyright sit on one baseline row:
+       the 20px gap existed to separate them when they stacked. */
     font-size: 12px;
     letter-spacing: .04em;
     color: var(--text-secondary);

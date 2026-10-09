@@ -15,6 +15,8 @@ interface Props {
     publishedTime?: Date;
     /** 404 only. Drops canonical, og:url and the sitemap, since /404/ is not a real path. */
     noindex?: boolean;
+    /** Terminal pages (About, Privacy): drops the footer, same as an article. */
+    nofooter?: boolean;
 }
 
 const { title = "xiaotian’s blog", description = "xiaotian’s blog — xiaotian", canonical, articlePage = false, lang = 'zh-CN', publishedTime, noindex = false } = Astro.props;
@@ -73,15 +75,25 @@ const isNotHome = Astro.url.pathname !== '/';
         <main class="container" id="main-content">
             <slot />
         </main>
-        {/* No footer on an article. The page already ends with the reply line,
+        {/* No footer on an article — the page already ends with the reply line,
             and a reader who got here from the index is mid-thought, not looking
             for navigation — the ← back link and back-to-top cover getting out.
+            Nor on About/Privacy: they are terminal pages of the same kind
+            (read once, then leave), and the footer nav would be the only nav
+            on them, competing with the ← arrow that already does the job.
+            The footer survives only on the index, where it is the signature
+            under the archive rather than a way out.
             Keyed off articlePage rather than a new prop so there is one flag
-            for "this is a post" and not two that can disagree. */}
-        {!articlePage && (
+            for "this is a post" and not two that can disagree; About/Privacy
+            pass nofooter through this same page type. */}
+        {!articlePage && !Astro.props.nofooter && (
         <footer class="site-footer">
+            {/* Index dropped from the footer nav on its own page — a link to
+                where you already are is not navigation. About and Privacy
+                remain: they are the two places this page does not link to
+                anywhere else. */}
             <p class="footer-nav">
-                <a href="/">Index</a><span class="sep">·</span><a href="/about/">About</a><span class="sep">·</span><a href="/privacy/">Privacy</a>
+                <a href="/about/">info</a><span class="sep">·</span><a href="/privacy/">privacy</a>
             </p>
             <p class="copyright">© xiaotian</p>
         </footer>
