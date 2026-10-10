@@ -70,7 +70,7 @@
    loaded. grey3 was dropped along with --border, which was its only consumer,
    so the scale now starts at grey4. */
 :root {
-    --white:   oklch(100% 0 0);
+    --white:   #e7e7e7;
     --grey4:   oklch(73.16% 0 0);
     --grey5:   oklch(64.34% 0 0);
     --grey7:   oklch(43.86% 0 0);
@@ -108,7 +108,11 @@ body {
     flex-direction: column;
 }
 
-.container { max-width: 680px; width: 100%; margin: 0 auto; flex: 1 0 auto; padding: 6rem 24px 48px; position: relative; }
+.container { max-width: 720px; width: 100%; margin: 0 auto; flex: 1 0 auto; padding: 6rem 24px 48px; position: relative; }
+/* Article pages: drop the container's top padding so the post's own 40px
+   top padding is the only gap — the same tight top margin Nathan's article
+   page has (pt-10 = 40px). Index and section pages keep the 96px opening. */
+.container:has(.post-content) { padding-top: 0; }
 
 #info-tools { position: fixed; top: 22px; left: 22px; z-index: 200; display: flex; flex-direction: column; }
 .info-tool {
@@ -266,7 +270,7 @@ body {
    removed, article/About/Privacy content starts at the same 96px the index
    does — the container's own 6rem — and the article's back arrow moves with
    it (see the #info-tools rule below). */
-.post-content { max-width: 640px; margin: 0 auto; }
+.post-content { max-width: 720px; margin: 0 auto; padding: 40px 32px 50vh; }
 /* The h1's own bottom margin (20px) sits directly against the first
    paragraph — .post-content p has no margin-top — so the title and the opening
    line were 20px apart, closer than the 27.2px line-height inside the body: the
@@ -274,34 +278,34 @@ body {
    puts a full body line between them, which is what "one blank line" means
    here, and it holds at both sizes because the margin is on the h1 and the
    paragraph's line-height only changes with the 15px phone type. */
-.post-content h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: normal; margin: 0 0 3rem; line-height: 1.4; }
-.post-content h2 { font-size: 1.1rem; font-weight: 600; letter-spacing: normal; margin: 1.5rem 0 .5rem; line-height: 1.5; }
+.post-content h1 { font-size: inherit; font-weight: 500; letter-spacing: normal; margin: 0 0 3rem; line-height: 1.4; color: var(--text-primary); }
+.post-content h2 { font-size: inherit; font-weight: 500; letter-spacing: normal; margin: 2em 0 1em; line-height: 1.5; color: var(--text-primary); }
 /* letter-spacing: 0 — the .015em here is a Latin-only tweak. On CJK glyphs it
    opens gaps between every character and loosens punctuation. */
-.post-content p { font-size: 1rem; line-height: 1.7; color: var(--text-secondary); margin: 0 0 .875rem; letter-spacing: normal; }
+.post-content p { font-size: 1rem; line-height: 1.625; letter-spacing: normal; color: var(--text-secondary); margin: 1.25em 0; }
 .post-content a { text-decoration: underline; text-underline-offset: 2px; }
 
 /* 引用块：左竖线 + 缩进 + 灰字。竖线用 2px 的 grey5 —— 1px 的 grey4
    在 15px 正文旁几乎不可见，2px 刚好能被感知又不抢正文。 */
 .post-content blockquote {
-    margin: 1.5rem 0;
+    margin: 1.25em 0;
     padding: .25rem 0 .25rem 1rem;
     border-left: 2px solid var(--grey5);
     color: var(--text-tertiary);
     font-size: .95rem;
-    line-height: 1.7;
+    line-height: 1.625;
 }
 
 /* 列表间距跟随段落节奏：上下 .875rem（同段落间距），li 之间收紧到
    .375rem，列表项通常较短，行距不需要段落那么大。 */
 .post-content ul,
 .post-content ol {
-    margin: .875rem 0;
-    padding-left: 1.5rem;
+    margin: 1.25em 0;
+    padding-left: 1.625em;
 }
 .post-content li {
-    margin-bottom: .375rem;
-    line-height: 1.7;
+    margin-bottom: .25em;
+    line-height: 1.625;
 }
 .post-content li:last-child { margin-bottom: 0; }
 
